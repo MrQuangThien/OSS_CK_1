@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SanPham, LoaiHang
+from .models import SanPham, LoaiHang, NhaCungCap, ChiTietPhieuNhap, PhieuNhap
 
 admin.site.register(SanPham)
 admin.site.register(LoaiHang)
