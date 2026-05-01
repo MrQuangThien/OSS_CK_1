@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import SanPham, LoaiHang
 
-# Register your models here.
+admin.site.register(SanPham)
+admin.site.register(LoaiHang)
