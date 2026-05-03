@@ -1,12 +1,12 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework import status
-from .models import SanPham, LoaiHang
-from .serializers import SanPhamSerializer, LoaiHangSerializer
-
+from .models import SanPham, LoaiHang, DonHang, ChiTietDonHang, KhachHang
+from .serializers import SanPhamSerializer, LoaiHangSerializer, DonHangSerializer
 # API lấy danh sách tất cả sản phẩm
 @api_view(['GET'])
 def get_san_pham(request):
@@ -29,17 +29,6 @@ def get_chi_tiet_sp(request, pk):
         return Response(serializer.data)
     except SanPham.DoesNotExist:
         return Response({'loi': 'Không tìm thấy sản phẩm'}, status=404)
-    
-@api_view(['POST'])
-def dat_hang(request):
-    # Nhận dữ liệu (Tên, SĐT, Địa chỉ, Danh sách hàng) từ React gửi lên
-    data = request.data 
-    
-    # Tạm thời in ra màn hình Terminal để kiểm tra xem React gửi đúng chưa
-    print("DỮ LIỆU ĐƠN HÀNG MỚI:", data)
-    
-    # Trả về thông báo thành công cho React
-    return Response({"message": "Đặt hàng thành công!"})
 
 @api_view(['POST'])
 def register_user(request):
@@ -78,3 +67,80 @@ def login_user(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Sai tên đăng nhập hoặc mật khẩu!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def dat_hang(request):
+    try:
+        data = request.data
+        khach_hang_data = data.get('khach_hang', {})
+        san_phams = data.get('san_phams', [])
+        tong_tien = data.get('tong_tien', 0)
+
+        # 1. TẠO HOẶC TÌM KHÁCH HÀNG
+        # Tìm khách hàng theo Số điện thoại, nếu chưa có thì hệ thống tự tạo mới
+        khach_hang_obj, created = KhachHang.objects.get_or_create(
+            so_dien_thoai=khach_hang_data.get('so_dien_thoai'),
+            defaults={
+                'ho_ten': khach_hang_data.get('ho_ten'),
+                'dia_chi': khach_hang_data.get('dia_chi')
+            }
+        )
+
+        # 2. TẠO ĐƠN HÀNG CHÍNH
+        don_hang = DonHang.objects.create(
+            khach_hang=khach_hang_obj,
+            tong_tien=tong_tien,
+            trang_thai="Chờ xử lý" # Khớp với default trong Model của bạn
+        )
+
+        # 3. LƯU CHI TIẾT SẢN PHẨM & TRỪ TỒN KHO
+        for item in san_phams:
+            sp = SanPham.objects.get(id=item['id'])
+            so_luong_mua = item['so_luong']
+
+            ChiTietDonHang.objects.create(
+                don_hang=don_hang,
+                san_pham=sp,
+                so_luong_mua=so_luong_mua,
+                don_gia=item['gia_ban']
+            )
+
+            # Trừ tồn kho tự động (Tránh bán âm kho)
+            if sp.ton_kho >= so_luong_mua:
+                sp.ton_kho -= so_luong_mua
+                sp.save()
+
+        return Response({"message": "Lưu đơn hàng vào DB thành công!"}, status=201)
+    
+    except Exception as e:
+        print("LỖI LƯU ĐƠN HÀNG:", str(e))
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['GET'])
+def lich_su_don_hang(request):
+    try:
+        # Tạm thời lấy toàn bộ đơn hàng, sắp xếp theo ngày mới nhất lên đầu (-ngay_dat_hang)
+        # (Sau này khi ráp chức năng Đăng nhập Token hoàn chỉnh, bạn có thể đổi thành:
+        # don_hangs = DonHang.objects.filter(khach_hang=request.user).order_by('-ngay_dat_hang') )
+        don_hangs = DonHang.objects.all().order_by('-ngay_dat_hang')
+        
+        # Đưa QuerySet vào Serializer để dịch ra JSON
+        serializer = DonHangSerializer(don_hangs, many=True)
+        
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def chi_tiet_don_hang(request, pk):
+    try:
+        # Tìm đơn hàng
+        dh = get_object_or_404(DonHang, pk=pk)
+        
+        # Nhờ Serializer dịch ra JSON
+        serializer = DonHangSerializer(dh)
+        return Response(serializer.data)
+
+    except Exception as e:
+        print("🚨 LỖI API CHI TIẾT:", str(e))
+        return Response({"error": str(e)}, status=400)
