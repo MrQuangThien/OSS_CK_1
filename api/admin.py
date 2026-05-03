@@ -1,9 +1,7 @@
 from django.contrib import admin
-<<<<<<<<< Temporary merge branch 1
+
 from .models import SanPham, LoaiHang, NhaCungCap, ChiTietPhieuNhap, PhieuNhap
-=========
-from .models import SanPham, LoaiHang, NhaCungCap, PhieuNhap, ChiTietPhieuNhap
->>>>>>>>> Temporary merge branch 2
+
 
 admin.site.register(SanPham)
 admin.site.register(LoaiHang)
