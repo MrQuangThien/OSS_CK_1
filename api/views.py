@@ -1,12 +1,12 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework import status
-from .models import SanPham, LoaiHang
-from .serializers import SanPhamSerializer, LoaiHangSerializer
-
+from .models import SanPham, LoaiHang, DonHang, ChiTietDonHang, KhachHang
+from .serializers import SanPhamSerializer, LoaiHangSerializer, DonHangSerializer
 # API lấy danh sách tất cả sản phẩm
 @api_view(['GET'])
 def get_san_pham(request):
@@ -29,17 +29,6 @@ def get_chi_tiet_sp(request, pk):
         return Response(serializer.data)
     except SanPham.DoesNotExist:
         return Response({'loi': 'Không tìm thấy sản phẩm'}, status=404)
-    
-@api_view(['POST'])
-def dat_hang(request):
-    # Nhận dữ liệu (Tên, SĐT, Địa chỉ, Danh sách hàng) từ React gửi lên
-    data = request.data 
-    
-    # Tạm thời in ra màn hình Terminal để kiểm tra xem React gửi đúng chưa
-    print("DỮ LIỆU ĐƠN HÀNG MỚI:", data)
-    
-    # Trả về thông báo thành công cho React
-    return Response({"message": "Đặt hàng thành công!"})
 
 @api_view(['POST'])
 def register_user(request):
@@ -78,3 +67,4 @@ def login_user(request):
         }, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Sai tên đăng nhập hoặc mật khẩu!'}, status=status.HTTP_401_UNAUTHORIZED)
+

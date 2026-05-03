@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# 1. Bảng Loại Hàng (Category)
+
 class LoaiHang(models.Model):
     ma_loai = models.CharField(max_length=10, null=True, blank=True, verbose_name="Mã loại")
     ten_loai = models.CharField(max_length=200)
@@ -11,10 +11,11 @@ class LoaiHang(models.Model):
             return f"{self.ma_loai} - {self.ten_loai}"
         return self.ten_loai
 
-# 2. Bảng Sản Phẩm (Product)
+
 class SanPham(models.Model):
     loai_hang = models.ForeignKey(LoaiHang, on_delete=models.CASCADE)
     ten_san_pham = models.CharField(max_length=255)
+    ton_kho = models.IntegerField(default=0, verbose_name="Tồn kho")
     gia_ban = models.DecimalField(max_digits=10, decimal_places=0) 
     hinh_anh = models.ImageField(upload_to='san_pham/', null=True, blank=True)
     la_san_pham_moi = models.BooleanField(default=True) 
@@ -26,13 +27,6 @@ class SanPham(models.Model):
     def __str__(self):
         return self.ten_san_pham
     
-    @property
-    def ton_kho(self):
-        from .models import KhoHang # Import tại đây để tránh lỗi vòng lặp
-        # Tìm xem sản phẩm này đã có trong kho chưa
-        kho = KhoHang.objects.filter(san_pham=self).first()
-        return kho.so_luong_ton if kho else 0
-    
 class HinhAnhSanPham(models.Model):
     san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE)
     hinh_anh = models.ImageField(upload_to='san_pham_gallery/')
@@ -42,7 +36,7 @@ class HinhAnhSanPham(models.Model):
     
 # 3. Bảng Khách Hàng (Customer)
 class KhachHang(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     # Thêm các trường này
     ho_ten = models.CharField(max_length=255, null=True, blank=True, verbose_name="Họ tên")
     so_dien_thoai = models.CharField(max_length=15, null=True, blank=True, verbose_name="Số điện thoại")
@@ -108,7 +102,13 @@ class DonHang(models.Model):
     ghi_chu = models.TextField(blank=True, null=True)
     
     def __str__(self):
-        return f"Đơn hàng {self.id} - {self.khach_hang.user.username}"
+        # Kiểm tra xem KhachHang có liên kết với User không, nếu không thì in ra Họ Tên
+        if self.khach_hang.user:
+            nguoi_dat = self.khach_hang.user.username
+        else:
+            nguoi_dat = self.khach_hang.ho_ten
+            
+        return f"Đơn hàng {self.id} - {nguoi_dat}"
 
 # 8. Bảng Chi Tiết Đơn Hàng (Order Detail)
 class ChiTietDonHang(models.Model):
@@ -148,3 +148,50 @@ class GioHang(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.san_pham.ten_san_pham}"
+    
+# 1. Bảng Nhà Cung Cấp
+class NhaCungCap(models.Model):
+    ten_nha_cung_cap = models.CharField(max_length=200, verbose_name="Tên nhà cung cấp")
+    so_dien_thoai = models.CharField(max_length=20, verbose_name="Số điện thoại")
+    dia_chi = models.TextField(verbose_name="Địa chỉ")
+
+    def __str__(self):
+        return self.ten_nha_cung_cap
+    
+    class Meta:
+        verbose_name_plural = "Nhà Cung Cấp"
+
+# 2. Bảng Phiếu Nhập
+class PhieuNhap(models.Model):
+    nha_cung_cap = models.ForeignKey(NhaCungCap, on_delete=models.SET_NULL, null=True, verbose_name="Nhà cung cấp")
+    ngay_nhap = models.DateTimeField(auto_now_add=True, verbose_name="Ngày nhập")
+    nguoi_nhap = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Người nhập (Admin)")
+    tong_tien = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="Tổng tiền nhập")
+    ghi_chu = models.TextField(blank=True, verbose_name="Ghi chú")
+
+    def __str__(self):
+        return f"Phiếu nhập #{self.id} - {self.ngay_nhap.strftime('%d/%m/%Y')}"
+    
+    class Meta:
+        verbose_name_plural = "Phiếu Nhập Kho"
+
+# 3. Bảng Chi Tiết Phiếu Nhập (Mỗi phiếu nhập có nhiều sản phẩm)
+class ChiTietPhieuNhap(models.Model):
+    phieu_nhap = models.ForeignKey(PhieuNhap, related_name='chi_tiet', on_delete=models.CASCADE)
+    san_pham = models.ForeignKey(SanPham, on_delete=models.CASCADE, verbose_name="Sản phẩm")
+    so_luong = models.IntegerField(default=1, verbose_name="Số lượng nhập")
+    gia_nhap = models.DecimalField(max_digits=10, decimal_places=0, verbose_name="Giá nhập")
+
+    # ĐOẠN CODE "MA THUẬT": TỰ ĐỘNG CỘNG TỒN KHO KHI LƯU
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None # Kiểm tra xem đây là lần thêm mới hay là sửa
+        super().save(*args, **kwargs) # Lưu chi tiết phiếu nhập vào DB trước
+        
+        if is_new:
+            # 1. Cộng dồn số lượng vào tồn kho của Sản phẩm
+            self.san_pham.ton_kho += self.so_luong
+            self.san_pham.save()
+
+            # 2. Cộng dồn tiền vào Tổng tiền của Phiếu nhập
+            self.phieu_nhap.tong_tien += (self.so_luong * self.gia_nhap)
+            self.phieu_nhap.save()

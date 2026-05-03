@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -8,11 +8,26 @@ import Detail from './pages/Detail'
 import Cart from './pages/Cart'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Checkout from './pages/Checkout'
+import History from './pages/History'
+import OrderDetail from './pages/OrderDetail'
+import AllProducts from './pages/AllProducts'
 
 function App() {
   const [gioHang, setGioHang] = useState([])
-
   const [username, setUsername] = useState(localStorage.getItem('username') || null)
+
+  const navigate = useNavigate()
+  const [tuKhoa, setTuKhoa] = useState("")
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (tuKhoa.trim()) {
+      navigate(`/tat-ca-san-pham?keyword=${encodeURIComponent(tuKhoa)}`)
+    } else {
+      navigate(`/tat-ca-san-pham`)
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('username') // Xóa khỏi bộ nhớ
@@ -21,12 +36,28 @@ function App() {
   }
 
   const handleThemVaoGio = (sanPham) => {
-    setGioHang([...gioHang, sanPham])
+    const spDaCo = gioHang.find(item => item.id === sanPham.id)
+    if (spDaCo) {
+      // Nếu đã có trong giỏ, chỉ tăng số lượng lên 1
+      setGioHang(gioHang.map(item => item.id === sanPham.id ? {...item, so_luong: item.so_luong + 1} : item))
+    } else {
+      // Nếu chưa có, thêm mới với số lượng là 1
+      setGioHang([...gioHang, {...sanPham, so_luong: 1}])
+    }
     toast.success(`🛒 Đã thêm ${sanPham.ten_san_pham} vào giỏ!`, { position: "bottom-right", autoClose: 2000 })
   }
 
-  const handleXoaKhoiGio = (index) => {
-    setGioHang(gioHang.filter((_, i) => i !== index))
+  const handleTangSoLuong = (id) => {
+    setGioHang(gioHang.map(item => item.id === id ? {...item, so_luong: item.so_luong + 1} : item))
+  }
+
+  const handleGiamSoLuong = (id) => {
+    setGioHang(gioHang.map(item => item.id === id && item.so_luong > 1 ? {...item, so_luong: item.so_luong - 1} : item))
+  }
+
+  const handleXoaKhoiGio = (id) => {
+    setGioHang(gioHang.filter(item => item.id !== id))
+    toast.info('🗑️ Đã xóa sản phẩm khỏi giỏ hàng', { position: "bottom-right", autoClose: 2000 })
   }
 
   return (
@@ -40,9 +71,10 @@ function App() {
             <i className="fa-solid fa-laptop-code"></i> ComputerShop
           </Link>
 
-          <form className="search-box" onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Tìm kiếm sản phẩm, thương hiệu..." />
-            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <form className="search-box" onSubmit={handleSearch}>
+            <input type="text" placeholder="Tìm kiếm sản phẩm, thương hiệu..." 
+                   value={tuKhoa} onChange={(e) => setTuKhoa(e.target.value)} />
+            <button type="submit"><i className="fa-solid fa-magnifying-glass"></i></button>
           </form>
 
           <div className="d-flex align-items-center gap-4">
@@ -65,7 +97,7 @@ function App() {
                   <span>Xin chào, {username}</span>
                 </div>
                 <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
-                  <li><Link to="#" className="dropdown-item py-2 fw-semibold"><i className="fa-solid fa-clipboard-list text-primary me-2"></i>Đơn hàng của tôi</Link></li>
+                  <li><Link to="/lich-su" className="dropdown-item py-2 fw-semibold"><i className="fa-solid fa-clipboard-list text-primary me-2"></i>Đơn hàng của tôi</Link></li>
                   <li><hr className="dropdown-divider" /></li>
                   <li><button onClick={handleLogout} className="dropdown-item py-2 fw-bold text-danger"><i className="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</button></li>
                 </ul>
@@ -86,7 +118,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home onThemVaoGio={handleThemVaoGio} />} />
           <Route path="/san-pham/:id" element={<Detail onThemVaoGio={handleThemVaoGio} />} />
-          <Route path="/gio-hang" element={<Cart gioHang={gioHang} onXoaKhoiGio={handleXoaKhoiGio} onXoaSachGio={() => setGioHang([])} />} />
+          <Route path="/gio-hang" element={<Cart gioHang={gioHang} onXoaKhoiGio={handleXoaKhoiGio} onTangSoLuong={handleTangSoLuong} onGiamSoLuong={handleGiamSoLuong} />} />
+          <Route path="/lich-su" element={<History />} />
+          <Route path="/don-hang/:id" element={<OrderDetail />} />
+          <Route path="/tat-ca-san-pham" element={<AllProducts onThemVaoGio={handleThemVaoGio} />} />
+          <Route path="/thanh-toan" element={<Checkout gioHang={gioHang} onXoaSachGio={() => setGioHang([])} />} />
           <Route path="/dang-nhap" element={<Login setUsername={setUsername} />} />
           <Route path="/dang-ky" element={<Register />} />
         </Routes>
