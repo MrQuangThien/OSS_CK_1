@@ -1,9 +1,6 @@
 from django.contrib import admin
-<<<<<<< Updated upstream
 from .models import SanPham, LoaiHang, NhaCungCap, PhieuNhap, ChiTietPhieuNhap
-=======
-from .models import SanPham, LoaiHang, NhaCungCap, ChiTietPhieuNhap, PhieuNhap
->>>>>>> Stashed changes
+
 
 admin.site.register(SanPham)
 admin.site.register(LoaiHang)
