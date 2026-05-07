@@ -507,3 +507,41 @@ footer {
 /* Responsive cho điện thoại/tablet */
 @media (max-width: 991px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(1, 1fr); } }
+/* ============================================== */
+/* GIAO DIỆN ADMIN DASHBOARD                      */
+/* ============================================== */
+.admin-layout { display: flex; min-height: 100vh; background-color: #f4f6f9; }
+
+/* Thanh Sidebar bên trái */
+.admin-sidebar { 
+  width: 260px; background: #343a40; color: #fff; flex-shrink: 0; 
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; transition: all 0.3s;
+}
+.admin-sidebar .sidebar-brand { 
+  padding: 20px; font-size: 1.5rem; font-weight: bold; text-align: center; 
+  border-bottom: 1px solid #4b545c; color: #fff; text-decoration: none; display: block;
+}
+.sidebar-menu { list-style: none; padding: 0; margin: 20px 0; }
+.sidebar-menu li a { 
+  display: block; color: #c2c7d0; padding: 12px 20px; text-decoration: none; 
+  font-weight: 500; transition: 0.2s; 
+}
+.sidebar-menu li a:hover, .sidebar-menu li a.active { 
+  background: #007bff; color: #fff; 
+}
+
+/* Phần nội dung bên phải */
+.admin-main { flex-grow: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+.admin-header { 
+  background: #fff; height: 60px; display: flex; align-items: center; 
+  justify-content: space-between; padding: 0 25px; border-bottom: 1px solid #dee2e6; 
+}
+
+/* Card Thống kê */
+.stat-card { border-radius: 10px; border: none; box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2); }
+.stat-card .inner { padding: 20px; color: #fff; border-radius: 10px 10px 0 0; }
+.stat-icon { position: absolute; right: 20px; top: 20px; font-size: 4rem; color: rgba(0,0,0,0.15); }
+.bg-info-custom { background-color: #17a2b8; }
+.bg-success-custom { background-color: #28a745; }
+.bg-warning-custom { background-color: #ffc107; }
+.bg-danger-custom { background-color: #dc3545; }

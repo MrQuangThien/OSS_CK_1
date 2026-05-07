@@ -12,6 +12,8 @@ import Checkout from './pages/Checkout'
 import History from './pages/History'
 import OrderDetail from './pages/OrderDetail'
 import AllProducts from './pages/AllProducts'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
 
 function App() {
   const [gioHang, setGioHang] = useState([])
@@ -125,6 +127,14 @@ function App() {
           <Route path="/thanh-toan" element={<Checkout gioHang={gioHang} onXoaSachGio={() => setGioHang([])} />} />
           <Route path="/dang-nhap" element={<Login setUsername={setUsername} />} />
           <Route path="/dang-ky" element={<Register />} />
+        {/* LUỒNG ADMIN  */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} /> {/* Trang chủ Admin */}
+          {/* Sau này làm thêm các trang quản lý sẽ gắn vào đây:
+          <Route path="san-pham" element={<AdminSanPham />} />
+          <Route path="don-hang" element={<AdminDonHang />} /> 
+          */}
+        </Route>
         </Routes>
       </main>
 

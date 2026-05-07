@@ -1,6 +1,12 @@
 from django.contrib import admin
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 from .models import SanPham, LoaiHang, NhaCungCap, PhieuNhap, ChiTietPhieuNhap
+=======
+
+from .models import SanPham, LoaiHang, NhaCungCap, ChiTietPhieuNhap, PhieuNhap
+
+>>>>>>> CHUC_NANG
 
 =======
 from .models import SanPham, LoaiHang, NhaCungCap, ChiTietPhieuNhap, PhieuNhap
