@@ -15,6 +15,7 @@ import AllProducts from './pages/AllProducts'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 
+
 function App() {
   const [gioHang, setGioHang] = useState([])
   const [username, setUsername] = useState(localStorage.getItem('username') || null)
@@ -117,7 +118,7 @@ function App() {
 
       {/* RUỘT TRANG WEB */}
       <main className="flex-grow-1 pt-4 pb-5">
-        <Routes>
+        <Routes>{/* LUỒNG KHACHHANG  */}
           <Route path="/" element={<Home onThemVaoGio={handleThemVaoGio} />} />
           <Route path="/san-pham/:id" element={<Detail onThemVaoGio={handleThemVaoGio} />} />
           <Route path="/gio-hang" element={<Cart gioHang={gioHang} onXoaKhoiGio={handleXoaKhoiGio} onTangSoLuong={handleTangSoLuong} onGiamSoLuong={handleGiamSoLuong} />} />
@@ -129,11 +130,7 @@ function App() {
           <Route path="/dang-ky" element={<Register />} />
         {/* LUỒNG ADMIN  */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} /> {/* Trang chủ Admin */}
-          {/* Sau này làm thêm các trang quản lý sẽ gắn vào đây:
-          <Route path="san-pham" element={<AdminSanPham />} />
-          <Route path="don-hang" element={<AdminDonHang />} /> 
-          */}
+          <Route index element={<AdminDashboard />} /> 
         </Route>
         </Routes>
       </main>
