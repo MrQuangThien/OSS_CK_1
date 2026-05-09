@@ -12,6 +12,10 @@ import Checkout from './pages/Checkout'
 import History from './pages/History'
 import OrderDetail from './pages/OrderDetail'
 import AllProducts from './pages/AllProducts'
+import AdminProducts from '.pagesadminAdminProducts'
+import AdminAddProduct from '.pagesadminAdminAddProduct'
+import AdminEditProduct from '.pagesadminAdminEditProduct'
+import AdminCategories from '.pagesadminAdminCategories'
 
 function App() {
   const [gioHang, setGioHang] = useState([])
