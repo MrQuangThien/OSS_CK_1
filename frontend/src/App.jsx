@@ -14,6 +14,10 @@ import OrderDetail from './pages/OrderDetail'
 import AllProducts from './pages/AllProducts'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminProducts from '.pagesadminAdminProducts'
+import AdminAddProduct from '.pagesadminAdminAddProduct'
+import AdminEditProduct from '.pagesadminAdminEditProduct'
+import AdminCategories from '.pagesadminAdminCategories'
 
 
 function App() {
