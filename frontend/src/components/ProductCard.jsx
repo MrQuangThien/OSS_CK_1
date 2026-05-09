@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 
 function ProductCard({ sp, onThemVaoGio }) {
   // Hàm xử lý ảnh lỗi hoặc không có ảnh
-  const hinhAnh = sp.hinh_anh || "https://via.placeholder.com/200x200?text=No+Image"
+  const hinhAnh = sp.hinh_anh 
+    ? (sp.hinh_anh.startsWith('http') ? sp.hinh_anh : `http://127.0.0.1:8000${sp.hinh_anh}`) 
+    : "https://via.placeholder.com/200x200?text=No+Image"
 
   return (
     <div className="product-card card h-100 border border-light-subtle shadow-sm position-relative bg-white" style={{ borderRadius: '12px', overflow: 'hidden' }}>
