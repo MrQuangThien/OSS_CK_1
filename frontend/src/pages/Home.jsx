@@ -1,80 +1,107 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import axios from 'axios'
-import ProductCard from '../components/ProductCard' // <-- 1. IMPORT COMPONENT Ở ĐÂY
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import ProductCard from '../components/ProductCard'; // Import component vào
 
 function Home({ onThemVaoGio }) {
-  const [sanPhams, setSanPhams] = useState([])
-  const [loaiHangs, setLoaiHangs] = useState([])
-  const [loaiDangChon, setLoaiDangChon] = useState(null)
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/san-pham/').then(res => setSanPhams(res.data))
-    axios.get('http://127.0.0.1:8000/api/loai-hang/').then(res => setLoaiHangs(res.data))
-  }, [])
+    Promise.all([
+      axios.get('http://127.0.0.1:8000/api/san-pham/'),
+      axios.get('http://127.0.0.1:8000/api/loai-hang/')
+    ]).then(([resProducts, resCategories]) => {
+      setProducts(resProducts.data);
+      setCategories(resCategories.data);
+      setLoading(false);
+    }).catch(err => console.error(err));
+  }, []);
 
-  const sanPhamHienThi = loaiDangChon ? sanPhams.filter(sp => sp.ten_loai === loaiDangChon) : sanPhams
+  if (loading) return <div className="text-center mt-5"><div className="spinner-border text-orange"></div></div>;
+
+  const sanPhamMoi = products.filter(sp => sp.la_san_pham_moi);
+  const sanPhamNoiBat = products.filter(sp => sp.la_san_pham_noi_bat);
 
   return (
-    <div className="container-custom">
+    <div className="container py-4">
       
-      {/* HERO SECTION (Danh mục & Banner) */}
-      <div className="hero-section mt-4">
-        <div className="category-sidebar">
-          <div className="fs-5 fw-bold mb-3 pb-2 border-bottom text-primary">
-            <i className="fa-solid fa-bars me-2"></i> DANH MỤC
-          </div>
-          <ul className="cat-list">
-            <li className={loaiDangChon === null ? 'active' : ''} onClick={() => setLoaiDangChon(null)}>
-              <i className="fa-solid fa-border-all me-2"></i> Tất cả sản phẩm
-            </li>
-            {loaiHangs.map(loai => (
-              <li key={loai.id} className={loaiDangChon === loai.ten_loai ? 'active' : ''} onClick={() => setLoaiDangChon(loai.ten_loai)}>
-                <i className="fa-solid fa-angle-right me-2 text-muted"></i> {loai.ten_loai}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="banner-slider">
-          <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Banner" />
-          <div className="banner-content">
-            <h1 className="fw-bold mb-3 display-5">Đại tiệc công nghệ</h1>
-            <p className="fs-4 mb-4">Giảm giá SỐC cho Laptop Gaming & Văn phòng</p>
-            <button className="btn-banner fs-5 border-0 shadow" onClick={() => setLoaiDangChon(null)}>Mua ngay hôm nay</button>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION SẢN PHẨM */}
-      <div className="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2 mt-5">
-        <h3 className="fw-bold text-uppercase m-0" style={{borderLeft: '5px solid #0d6efd', paddingLeft: '12px'}}>
-          {loaiDangChon ? `Sản phẩm: ${loaiDangChon}` : 'TẤT CẢ SẢN PHẨM'}
-        </h3>
-        <span className="text-secondary fw-bold">{sanPhamHienThi.length} sản phẩm</span>
-      </div>
-
-      {/* LƯỚI SẢN PHẨM (ĐÃ DÙNG COMPONENT MỚI) */}
-      <div className="row g-4 mb-5">
-        {sanPhamHienThi.length === 0 ? (
-          <div className="col-12 text-center py-5 text-muted">
-            <i className="fa-solid fa-box-open mb-3" style={{fontSize: '60px'}}></i>
-            <h4>Không tìm thấy sản phẩm nào!</h4>
-          </div>
-        ) : (
-          sanPhamHienThi.map((sp) => (
-            <div className="col-lg-3 col-md-4 col-sm-6" key={sp.id}>
-              
-              {/* <-- 2. GỌI COMPONENT PRODUCT CARD RA ĐÂY --> */}
-              <ProductCard sp={sp} onThemVaoGio={onThemVaoGio} />
-              
+      {/* 1. BANNER CHÍNH */}
+      <div className="row mb-5">
+        <div className="col-12">
+          <div className="rounded-4 p-5 d-flex align-items-center" style={{backgroundColor: 'var(--light-orange)', minHeight: '350px'}}>
+            <div className="w-50 ps-md-5">
+              <span className="badge bg-danger mb-2 fs-6 px-3 py-2">Mùa Tựu Trường</span>
+              <h1 className="display-4 fw-bold mb-3 text-dark">Siêu sale thiết bị số<br/><span className="text-orange">Giảm đến 50%++</span></h1>
+              <p className="text-muted fs-5 mb-4">Hàng ngàn sản phẩm máy tính, laptop chính hãng.<br/>Giá tốt nhất dành cho bạn.</p>
+              <Link to="/tat-ca-san-pham" className="btn btn-orange px-5 py-3 fw-bold rounded-pill shadow-sm">Mua ngay hôm nay</Link>
             </div>
-          ))
-        )}
+            <div className="w-50 text-end pe-md-5">
+              <img src="https://cdn.tgdd.vn/Products/Images/44/302146/macbook-pro-14-inch-m2-pro-2023-xam-thumb-600x600.jpg" alt="Banner" className="img-fluid" style={{maxHeight: '300px'}} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. CHÍNH SÁCH BÁN HÀNG */}
+      <div className="row text-center mb-5 border-bottom pb-4">
+        <div className="col-md-3"><i className="fa-solid fa-truck-fast text-orange fs-2 mb-2"></i><h6 className="fw-bold">Miễn phí vận chuyển</h6><small className="text-muted">Cho đơn từ 500.000đ</small></div>
+        <div className="col-md-3"><i className="fa-solid fa-rotate-left text-orange fs-2 mb-2"></i><h6 className="fw-bold">Đổi trả dễ dàng</h6><small className="text-muted">Trong vòng 7 ngày</small></div>
+        <div className="col-md-3"><i className="fa-solid fa-shield-halved text-orange fs-2 mb-2"></i><h6 className="fw-bold">Thanh toán an toàn</h6><small className="text-muted">Bảo mật 100%</small></div>
+        <div className="col-md-3"><i className="fa-solid fa-headset text-orange fs-2 mb-2"></i><h6 className="fw-bold">Hỗ trợ 24/7</h6><small className="text-muted">Hotline: 1900 1234</small></div>
+      </div>
+
+      {/* 3. DANH MỤC NỔI BẬT */}
+      <div className="mb-5">
+        <h4 className="fw-bold mb-4">Danh mục nổi bật</h4>
+        <div className="d-flex justify-content-between overflow-auto pb-3">
+          {categories.map(cat => (
+            // Sửa link danh mục trỏ về trang tất cả sản phẩm
+            <Link to="/tat-ca-san-pham" key={cat.id} className="text-decoration-none text-dark category-box text-center px-3">
+              <div className="category-icon-box shadow-sm">
+                <i className="fa-solid fa-laptop text-orange fs-3"></i>
+              </div>
+              <span className="fw-bold small">{cat.ten_loai}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. SẢN PHẨM MỚI NHẤT */}
+      <div className="mb-5">
+        <div className="d-flex justify-content-between align-items-end mb-4">
+          <h4 className="fw-bold mb-0">Sản phẩm công nghệ mới</h4>
+          <Link to="/tat-ca-san-pham" className="text-orange text-decoration-none fw-bold small">Xem tất cả <i className="fa-solid fa-chevron-right"></i></Link>
+        </div>
+        <div className="row g-4">
+          {sanPhamMoi.slice(0, 4).map(sp => (
+            <div key={sp.id} className="col-md-3">
+              {/* Sử dụng Component ProductCard */}
+              <ProductCard sp={sp} onThemVaoGio={onThemVaoGio} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 5. SẢN PHẨM BÁN CHẠY (NỔI BẬT) */}
+      <div className="mb-5">
+        <div className="d-flex justify-content-between align-items-end mb-4">
+          <h4 className="fw-bold mb-0">Sản phẩm bán chạy</h4>
+          <Link to="/tat-ca-san-pham" className="text-orange text-decoration-none fw-bold small">Xem tất cả <i className="fa-solid fa-chevron-right"></i></Link>
+        </div>
+        <div className="row g-4">
+          {sanPhamNoiBat.slice(0, 4).map(sp => (
+            <div key={sp.id} className="col-md-3">
+              {/* Sử dụng Component ProductCard */}
+              <ProductCard sp={sp} onThemVaoGio={onThemVaoGio} />
+            </div>
+          ))}
+        </div>
       </div>
 
     </div>
   )
 }
 
-export default Home
+export default Home;
