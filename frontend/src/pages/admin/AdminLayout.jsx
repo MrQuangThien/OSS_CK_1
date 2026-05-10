@@ -76,11 +76,16 @@ function AdminLayout() {
 
           {/* 5. Quản lý Kho (Có Submenu) */}
           <li>
-            <div className={`menu-toggle ${isParentActive(['/kho-hang', '/nhap-hang'])}`} data-bs-toggle="collapse" data-bs-target="#menuKhoHang" aria-expanded={isMenuOpen(['/kho-hang', '/nhap-hang']) ? 'true' : 'false'}>
+            <div className={`menu-toggle ${isParentActive(['/kho-hang', '/nhap-hang', '/nha-cung-cap'])}`} data-bs-toggle="collapse" data-bs-target="#menuKhoHang" aria-expanded={isMenuOpen(['/kho-hang', '/nhap-hang', '/nha-cung-cap']) ? 'true' : 'false'}>
               <i className="fa-solid fa-warehouse icon-main"></i> Quản lý Kho
               <i className="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
             </div>
-            <ul className={`collapse sidebar-submenu ${isMenuOpen(['/kho-hang', '/nhap-hang'])}`} id="menuKhoHang">
+            <ul className={`collapse sidebar-submenu ${isMenuOpen(['/kho-hang', '/nhap-hang', '/nha-cung-cap'])}`} id="menuKhoHang">
+              <li>
+                <Link to="/admin/nha-cung-cap" className={isActive('/nha-cung-cap')}>
+                  <i className="fa-solid fa-building"></i> Quản lý Nhà Cung Cấp
+                </Link>
+              </li>
               <li>
                 <Link to="/admin/kho-hang" className={isActive('/kho-hang')}>
                   <i className="fa-solid fa-boxes-stacked"></i> Tồn kho hiện tại
