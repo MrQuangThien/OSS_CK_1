@@ -15,4 +15,8 @@ urlpatterns = [
     path('phieu-nhap/tao/', views.tao_phieu_nhap),
     path('phieu-nhap/<int:pk>/', views.chi_tiet_phieu_nhap),
     path('nha-cung-cap/', views.danh_sach_nha_cung_cap, name='danh_sach_nha_cung_cap'),
+    path('loai-hang/them/', views.them_loai_hang, name='them_loai_hang'),
+    path('loai-hang/<int:pk>/sua/', views.sua_loai_hang, name='sua_loai_hang'),
+    path('loai-hang/<int:pk>/xoa/', views.xoa_loai_hang, name='xoa_loai_hang'),
+    
 ]
