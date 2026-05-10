@@ -22,4 +22,7 @@ urlpatterns = [
     path('nha-cung-cap/them/', views.them_nha_cung_cap),
     path('nha-cung-cap/<int:pk>/sua/', views.sua_nha_cung_cap),
     path('nha-cung-cap/<int:pk>/xoa/', views.xoa_nha_cung_cap),
+        path('san-pham/<int:pk>/delete/', views.delete_product),
+    path('san-pham/them/', views.them_san_pham, name='them_san_pham'),
+    path('san-pham/<int:pk>/sua/', views.sua_san_pham, name='sua_san_pham'),
 ]
