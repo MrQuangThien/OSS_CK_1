@@ -18,5 +18,8 @@ urlpatterns = [
     path('loai-hang/them/', views.them_loai_hang, name='them_loai_hang'),
     path('loai-hang/<int:pk>/sua/', views.sua_loai_hang, name='sua_loai_hang'),
     path('loai-hang/<int:pk>/xoa/', views.xoa_loai_hang, name='xoa_loai_hang'),
-    
+    path('nha-cung-cap/', views.danh_sach_nha_cung_cap, name='danh_sach_nha_cung_cap'),
+    path('nha-cung-cap/them/', views.them_nha_cung_cap),
+    path('nha-cung-cap/<int:pk>/sua/', views.sua_nha_cung_cap),
+    path('nha-cung-cap/<int:pk>/xoa/', views.xoa_nha_cung_cap),
 ]
