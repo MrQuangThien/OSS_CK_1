@@ -238,3 +238,33 @@ def chi_tiet_phieu_nhap(request, pk):
             "thanh_tien": item.so_luong * item.gia_nhap
         } for item in chi_tiet]
     })
+    @api_view(['POST'])
+def them_loai_hang(request):
+    try:
+        ten = request.data.get('ten_loai')
+        if not ten:
+            return Response({"error": "Vui lòng nhập tên loại hàng"}, status=400)
+            
+        LoaiHang.objects.create(ten_loai=ten)
+        return Response({"message": "Thêm danh mục thành công!"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['PATCH'])
+def sua_loai_hang(request, pk):
+    try:
+        lh = get_object_or_404(LoaiHang, pk=pk)
+        lh.ten_loai = request.data.get('ten_loai', lh.ten_loai)
+        lh.save()
+        return Response({"message": "Cập nhật thành công!"})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['DELETE'])
+def xoa_loai_hang(request, pk):
+    try:
+        lh = get_object_or_404(LoaiHang, pk=pk)
+        lh.delete()
+        return Response({"message": "Đã xóa danh mục"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
