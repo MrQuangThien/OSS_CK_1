@@ -11,4 +11,8 @@ urlpatterns = [
     path('lich-su-don-hang/', views.lich_su_don_hang, name='lich_su_don_hang'),
     path('don-hang/<int:pk>/', views.chi_tiet_don_hang, name='chi_tiet_don_hang'),
     path('don-hang/<int:pk>/status/', views.update_order_status),
+    path('phieu-nhap/', views.danh_sach_phieu_nhap, name='danh_sach_phieu_nhap'),
+    path('phieu-nhap/tao/', views.tao_phieu_nhap),
+    path('phieu-nhap/<int:pk>/', views.chi_tiet_phieu_nhap),
+    path('nha-cung-cap/', views.danh_sach_nha_cung_cap, name='danh_sach_nha_cung_cap'),
 ]
