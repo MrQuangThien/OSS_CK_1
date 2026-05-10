@@ -2,67 +2,63 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+// Import CKEditor 5
+import { CKEditor } from '@ckeditor/ckeditor5-react'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
 function AdminEditProduct() {
-  const { id } = useParams() // Lấy ID sản phẩm cần sửa
+  const { id } = useParams()
   const navigate = useNavigate()
   const [loaiHangs, setLoaiHangs] = useState([])
   const [loading, setLoading] = useState(true)
   
   const [formData, setFormData] = useState({
-    ten_san_pham: '',
-    loai_hang: '',
-    gia_ban: '',
-    ton_kho: '',
+    ten_san_pham: '', loai_hang: '', gia_ban: '', ton_kho: '',
+    mo_ta_ngan: '', mo_ta_chi_tiet: '',
+    la_san_pham_moi: false, la_san_pham_noi_bat: false
   })
   
-  // State quản lý ảnh
-  const [hinhAnhMoi, setHinhAnhMoi] = useState(null) // Chứa file nếu up ảnh mới
-  const [preview, setPreview] = useState(null)       // Link hiển thị ảnh
+  const [hinhAnh, setHinhAnh] = useState(null)
+  const [preview, setPreview] = useState(null)
 
   useEffect(() => {
-    // Tải đồng thời Danh mục Loại hàng VÀ Dữ liệu của Sản phẩm hiện tại
-    Promise.all([
-      axios.get('http://127.0.0.1:8000/api/loai-hang/'),
-      // Giả sử bạn có API lấy chi tiết 1 SP (Tái sử dụng API cũ của trang Detail)
-      axios.get(`http://127.0.0.1:8000/api/san-pham/${id}/`) 
-    ])
-    .then(([resLH, resSP]) => {
-      setLoaiHangs(resLH.data)
-      
-      const sp = resSP.data
-      // Đổ dữ liệu cũ vào Form
-      setFormData({
-        ten_san_pham: sp.ten_san_pham,
-        loai_hang: sp.loai_hang, // Đảm bảo API trả về ID của loại hàng
-        gia_ban: sp.gia_ban,
-        ton_kho: sp.ton_kho,
+    // Lấy danh mục
+    axios.get('http://127.0.0.1:8000/api/loai-hang/').then(res => setLoaiHangs(res.data))
+    
+    // Lấy thông tin sản phẩm cần sửa
+    axios.get(`http://127.0.0.1:8000/api/san-pham/${id}/`)
+      .then(res => {
+        const data = res.data;
+        setFormData({
+          ten_san_pham: data.ten_san_pham,
+          loai_hang: data.loai_hang?.id || data.loai_hang,
+          gia_ban: data.gia_ban,
+          ton_kho: data.ton_kho,
+          mo_ta_ngan: data.mo_ta_ngan || '',
+          mo_ta_chi_tiet: data.mo_ta_chi_tiet || '',
+          la_san_pham_moi: data.la_san_pham_moi,
+          la_san_pham_noi_bat: data.la_san_pham_noi_bat
+        })
+        
+        if (data.hinh_anh) {
+          let cleanPath = data.hinh_anh.startsWith('http') ? data.hinh_anh : `http://127.0.0.1:8000${data.hinh_anh.startsWith('/media/') ? data.hinh_anh : '/media' + data.hinh_anh}`
+          setPreview(cleanPath)
+        }
+        setLoading(false)
       })
-      // Hiển thị ảnh cũ có sẵn trong Database
-      if (sp.hinh_anh) setPreview(sp.hinh_anh)
-      
-      setLoading(false)
-    })
-    .catch(err => {
-      toast.error("Không tìm thấy sản phẩm!")
-      navigate('/admin/san-pham')
-    })
+      .catch(err => {
+        toast.error("Không tìm thấy sản phẩm!")
+        navigate('/admin/san-pham')
+      })
   }, [id, navigate])
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      setHinhAnhMoi(file) // Vẫn lưu file gốc để gửi lên Django
-      
-      // Dùng FileReader để hiển thị
+      setHinhAnh(file)
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreview(reader.result) // Đưa chuỗi hình ảnh vào State
-      }
+      reader.onloadend = () => setPreview(reader.result)
       reader.readAsDataURL(file)
-    } else {
-      setHinhAnhMoi(null)
-      // Không setPreview(null) ở đây vì AdminEdit cần giữ lại ảnh cũ nếu họ bỏ chọn
     }
   }
 
@@ -70,103 +66,161 @@ function AdminEditProduct() {
     e.preventDefault()
 
     const dataToSend = new FormData()
-    dataToSend.append('ten_san_pham', formData.ten_san_pham)
-    dataToSend.append('loai_hang', formData.loai_hang)
-    dataToSend.append('gia_ban', formData.gia_ban)
-    dataToSend.append('ton_kho', formData.ton_kho)
     
-    // CHỈ gửi file ảnh ĐÍNH KÈM nếu Admin thực sự chọn ảnh mới
-    if (hinhAnhMoi) {
-      dataToSend.append('hinh_anh', hinhAnhMoi) 
-    }
+    // ĐOẠN ĐƯỢC SỬA: Phân loại dữ liệu trước khi gửi
+    Object.keys(formData).forEach(key => {
+      if (typeof formData[key] === 'boolean') {
+        // Ép kiểu Boolean thành chuỗi 'True' hoặc 'False' chuẩn của Python
+        dataToSend.append(key, formData[key] ? 'True' : 'False')
+      } else {
+        dataToSend.append(key, formData[key])
+      }
+    })
+    
+    if (hinhAnh) dataToSend.append('hinh_anh', hinhAnh)
 
-    // Dùng PATCH thay vì POST
     axios.patch(`http://127.0.0.1:8000/api/san-pham/${id}/sua/`, dataToSend, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-    .then(res => {
-      toast.success("✨ Cập nhật sản phẩm thành công!")
+    .then(() => {
+      toast.success("🎉 Đã cập nhật sản phẩm!")
       navigate('/admin/san-pham')
     })
-    .catch(err => {
-      toast.error("❌ Lỗi cập nhật.")
-      console.error(err)
-    })
+    .catch(() => toast.error("❌ Cập nhật thất bại."))
   }
 
-  if (loading) return <div className="text-center mt-5"><div className="spinner-border text-primary"></div></div>
+  if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
 
   return (
-    <div className="card shadow-sm border-0">
-      <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h5 className="fw-bold mb-0 text-primary">Chỉnh Sửa Sản Phẩm #{id}</h5>
-        <Link to="/admin/san-pham" className="btn btn-sm btn-outline-secondary">
-          <i className="fa-solid fa-arrow-left me-1"></i> Quay lại
-        </Link>
-      </div>
+    <div>
+      {/* CSS fix chiều cao cho CKEditor và Sticky Column */}
+      <style>{`
+        .ck-editor__editable_inline { min-height: 400px; }
+        .sticky-column { position: sticky; top: 90px; }
+      `}</style>
 
-      <div className="card-body p-4">
-        <form onSubmit={handleSubmit} className="row g-4">
-          
-          <div className="col-lg-8">
-            <div className="mb-3">
-              <label className="form-label fw-bold">Tên sản phẩm</label>
-              <input type="text" className="form-control" required 
-                value={formData.ten_san_pham} onChange={(e) => setFormData({...formData, ten_san_pham: e.target.value})} />
-            </div>
-
-            <div className="row">
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-bold">Loại hàng</label>
-                <select className="form-select" required
-                  value={formData.loai_hang} onChange={(e) => setFormData({...formData, loai_hang: e.target.value})}>
-                  <option value="">-- Chọn loại hàng --</option>
-                  {loaiHangs.map(loai => (
-                    <option key={loai.id} value={loai.id}>{loai.ten_loai}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-bold">Giá bán (VNĐ)</label>
-                <input type="number" className="form-control" required
-                  value={formData.gia_ban} onChange={(e) => setFormData({...formData, gia_ban: e.target.value})} />
-              </div>
-
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-bold">Số lượng Tồn kho</label>
-                <input type="number" className="form-control" required
-                  value={formData.ton_kho} onChange={(e) => setFormData({...formData, ton_kho: e.target.value})} />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-lg-4">
-            <div className="border rounded-3 p-3 text-center h-100 bg-light">
-              <label className="form-label fw-bold d-block mb-3">Hình ảnh Sản phẩm</label>
-              
-              <div className="bg-white border rounded mb-3 d-flex align-items-center justify-content-center" style={{height: '200px', overflow: 'hidden'}}>
-                {preview ? (
-                  <img src={preview} alt="Xem trước" style={{maxWidth: '100%', maxHeight: '100%', objectFit: 'contain'}} />
-                ) : (
-                  <div className="text-muted"><i className="fa-regular fa-image fs-1 mb-2"></i><br/>Chưa có ảnh</div>
-                )}
-              </div>
-
-              {/* Bỏ required ở đây vì Admin có quyền KHÔNG đổi ảnh mới */}
-              <input type="file" className="form-control form-control-sm" accept="image/*" onChange={handleImageChange} />
-              <small className="text-muted d-block mt-2">Bỏ trống nếu muốn giữ nguyên ảnh cũ</small>
-            </div>
-          </div>
-
-          <div className="col-12 text-end mt-4 border-top pt-4">
-            <button type="submit" className="btn btn-primary px-5 py-2 fw-bold">
-              <i className="fa-solid fa-save me-2"></i> LƯU THAY ĐỔI
+      <form onSubmit={handleSubmit}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 className="fw-bold m-0"><i className="fa-solid fa-pen-to-square me-2 text-info"></i>Sửa Cập Nhật Sản Phẩm</h3>
+          <div className="d-flex gap-2">
+            <Link to="/admin/san-pham" className="btn btn-light border px-4 fw-bold shadow-sm">HỦY</Link>
+            <button type="submit" className="btn btn-info text-white px-4 fw-bold shadow-sm">
+              <i className="fa-solid fa-save me-2"></i>CẬP NHẬT
             </button>
           </div>
+        </div>
 
-        </form>
-      </div>
+        <div className="row g-4 align-items-start">
+          
+          {/* ================= CỘT TRÁI: DỮ LIỆU VĂN BẢN ================= */}
+          <div className="col-lg-8">
+            {/* Nhóm 1: Thông tin cơ bản */}
+            <div className="card border-0 shadow-sm rounded-4 mb-4">
+              <div className="card-header bg-white py-3 border-bottom">
+                <h6 className="fw-bold m-0 text-uppercase text-secondary">1. Thông tin chung & Phân loại</h6>
+              </div>
+              <div className="card-body p-4 row g-3">
+                <div className="col-md-12">
+                  <label className="form-label fw-bold small">TÊN SẢN PHẨM <span className="text-danger">*</span></label>
+                  <input type="text" className="form-control px-3 py-2" required placeholder="Nhập tên sản phẩm..."
+                    value={formData.ten_san_pham} onChange={e => setFormData({...formData, ten_san_pham: e.target.value})} />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label fw-bold small">DANH MỤC <span className="text-danger">*</span></label>
+                  <select className="form-select px-3 py-2" required value={formData.loai_hang} onChange={e => setFormData({...formData, loai_hang: e.target.value})}>
+                    <option value="">-- Chọn danh mục --</option>
+                    {loaiHangs.map(loai => <option key={loai.id} value={loai.id}>{loai.ten_loai}</option>)}
+                  </select>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label fw-bold small">GIÁ BÁN (VNĐ) <span className="text-danger">*</span></label>
+                  <input type="number" className="form-control px-3 py-2" required min="0"
+                    value={formData.gia_ban} onChange={e => setFormData({...formData, gia_ban: e.target.value})} />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label fw-bold small">TỒN KHO <span className="text-danger">*</span></label>
+                  <input type="number" className="form-control px-3 py-2" required min="0"
+                    value={formData.ton_kho} onChange={e => setFormData({...formData, ton_kho: e.target.value})} />
+                </div>
+              </div>
+            </div>
+
+            {/* Nhóm 2: Nội dung bài viết */}
+            <div className="card border-0 shadow-sm rounded-4 mb-4">
+              <div className="card-header bg-white py-3 border-bottom">
+                <h6 className="fw-bold m-0 text-uppercase text-secondary">2. Nội dung & Cấu hình</h6>
+              </div>
+              <div className="card-body p-4">
+                <div className="mb-4">
+                  <label className="form-label fw-bold small text-primary"><i className="fa-solid fa-list-check me-2"></i>MÔ TẢ CẤU HÌNH NGẮN</label>
+                  <textarea className="form-control px-3 py-2 bg-light border-0" rows="4" placeholder="Nhập tóm tắt thông số..."
+                    value={formData.mo_ta_ngan} onChange={e => setFormData({...formData, mo_ta_ngan: e.target.value})}></textarea>
+                </div>
+                
+                <div className="mb-0">
+                  <label className="form-label fw-bold small text-primary"><i className="fa-solid fa-pen-nib me-2"></i>BÀI VIẾT MÔ TẢ CHI TIẾT</label>
+                  <div className="border rounded">
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={formData.mo_ta_chi_tiet}
+                      onChange={(event, editor) => {
+                        const data = editor.getData();
+                        setFormData({ ...formData, mo_ta_chi_tiet: data });
+                      }}
+                      config={{
+                        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|', 'undo', 'redo']
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ================= CỘT PHẢI: ẢNH & TRẠNG THÁI (STICKY) ================= */}
+          <div className="col-lg-4 sticky-column">
+            
+            {/* Nhóm 3: Trạng thái hiển thị */}
+            <div className="card border-0 shadow-sm rounded-4 mb-4">
+              <div className="card-header bg-white py-3 border-bottom">
+                <h6 className="fw-bold m-0 text-uppercase text-secondary">3. Trạng thái hiển thị</h6>
+              </div>
+              <div className="card-body p-4">
+                <div className="form-check form-switch mb-3 p-3 border rounded bg-light d-flex align-items-center">
+                  <input className="form-check-input mt-0 ms-0 me-3" type="checkbox" role="switch" style={{width: '40px', height: '20px'}}
+                    checked={formData.la_san_pham_moi} onChange={e => setFormData({...formData, la_san_pham_moi: e.target.checked})} />
+                  <label className="form-check-label fw-bold text-success mb-0">Hàng Mới Về</label>
+                </div>
+
+                <div className="form-check form-switch p-3 border rounded bg-light d-flex align-items-center border-danger border-opacity-25">
+                  <input className="form-check-input mt-0 ms-0 me-3 bg-danger border-danger" type="checkbox" role="switch" style={{width: '40px', height: '20px'}}
+                    checked={formData.la_san_pham_noi_bat} onChange={e => setFormData({...formData, la_san_pham_noi_bat: e.target.checked})} />
+                  <label className="form-check-label fw-bold text-danger mb-0">Sản phẩm HOT</label>
+                </div>
+              </div>
+            </div>
+
+            {/* Nhóm 4: Quản lý hình ảnh */}
+            <div className="card border-0 shadow-sm rounded-4 mb-4">
+              <div className="card-header bg-white py-3 border-bottom">
+                <h6 className="fw-bold m-0 text-uppercase text-secondary">4. Hình ảnh đại diện</h6>
+              </div>
+              <div className="card-body p-4">
+                <div className="mb-0">
+                  {preview && (
+                    <div className="mb-3 text-center border rounded bg-light p-2 position-relative">
+                      <img src={preview} style={{height: '180px', width: '100%', objectFit: 'contain'}} alt="Preview" />
+                    </div>
+                  )}
+                  <input type="file" className="form-control" accept="image/*" onChange={handleImageChange} />
+                  <small className="text-muted d-block mt-2">Bỏ trống nếu muốn giữ nguyên ảnh cũ.</small>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </form>
     </div>
   )
 }
