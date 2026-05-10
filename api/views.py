@@ -268,3 +268,43 @@ def xoa_loai_hang(request, pk):
         return Response({"message": "Đã xóa danh mục"}, status=204)
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+@api_view(['GET'])
+def danh_sach_nha_cung_cap(request):
+    nccs = NhaCungCap.objects.all()
+    serializer = NhaCungCapSerializer(nccs, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def them_nha_cung_cap(request):
+    try:
+        data = request.data
+        NhaCungCap.objects.create(
+            ten_nha_cung_cap=data.get('ten_nha_cung_cap'),
+            so_dien_thoai=data.get('so_dien_thoai', ''),
+            dia_chi=data.get('dia_chi', '')
+        )
+        return Response({"message": "Thêm nhà cung cấp thành công!"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['PATCH'])
+def sua_nha_cung_cap(request, pk):
+    try:
+        ncc = get_object_or_404(NhaCungCap, pk=pk)
+        data = request.data
+        if 'ten_nha_cung_cap' in data: ncc.ten_nha_cung_cap = data['ten_nha_cung_cap']
+        if 'so_dien_thoai' in data: ncc.so_dien_thoai = data['so_dien_thoai']
+        if 'dia_chi' in data: ncc.dia_chi = data['dia_chi']
+        ncc.save()
+        return Response({"message": "Cập nhật thành công!"})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['DELETE'])
+def xoa_nha_cung_cap(request, pk):
+    try:
+        ncc = get_object_or_404(NhaCungCap, pk=pk)
+        ncc.delete()
+        return Response({"message": "Đã xóa nhà cung cấp"}, status=204)
+    except Exception as e:
+        return Response({"error": "Không thể xóa vì nhà cung cấp này đang có Phiếu nhập!"}, status=400)
