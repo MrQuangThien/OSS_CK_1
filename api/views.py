@@ -308,3 +308,66 @@ def xoa_nha_cung_cap(request, pk):
         return Response({"message": "Đã xóa nhà cung cấp"}, status=204)
     except Exception as e:
         return Response({"error": "Không thể xóa vì nhà cung cấp này đang có Phiếu nhập!"}, status=400)
+
+@api_view(['DELETE'])
+def delete_product(request, pk):
+    sp = get_object_or_404(SanPham, pk=pk)
+    sp.delete()
+    return Response(status=204)
+
+@api_view(['POST'])
+def them_san_pham(request):
+    try:
+        # Nhận dữ liệu text từ form
+        data = request.data
+        loai_hang_id = data.get('loai_hang')
+        loai_hang = get_object_or_404(LoaiHang, pk=loai_hang_id)
+        
+        # Tạo sản phẩm mới
+        sp = SanPham.objects.create(
+            ten_san_pham=data.get('ten_san_pham'),
+            loai_hang=loai_hang,
+            gia_ban=data.get('gia_ban'),
+            ton_kho=data.get('ton_kho', 0),
+            # Nếu model của bạn có trường mô tả, thêm dòng này:
+            # mo_ta=data.get('mo_ta', '') 
+        )
+        
+        # Xử lý LƯU FILE ẢNH (Quan trọng)
+        if 'hinh_anh' in request.FILES:
+            sp.hinh_anh = request.FILES['hinh_anh']
+            sp.save()
+            
+        return Response({"message": "Thêm sản phẩm thành công!"}, status=201)
+        
+    except Exception as e:
+        print("🚨 LỖI THÊM SẢN PHẨM:", str(e))
+        return Response({"error": str(e)}, status=400)
+    
+@api_view(['PATCH'])
+def sua_san_pham(request, pk):
+    try:
+        # 1. Tìm sản phẩm cần sửa
+        sp = get_object_or_404(SanPham, pk=pk)
+        data = request.data
+        
+        # 2. Cập nhật các trường văn bản (nếu có gửi lên)
+        if 'ten_san_pham' in data: 
+            sp.ten_san_pham = data['ten_san_pham']
+        if 'loai_hang' in data: 
+            sp.loai_hang = get_object_or_404(LoaiHang, pk=data['loai_hang'])
+        if 'gia_ban' in data: 
+            sp.gia_ban = data['gia_ban']
+        if 'ton_kho' in data: 
+            sp.ton_kho = data['ton_kho']
+            
+        # 3. Xử lý ảnh: CHỈ cập nhật nếu Admin có upload ảnh mới
+        if 'hinh_anh' in request.FILES:
+            sp.hinh_anh = request.FILES['hinh_anh']
+            
+        sp.save()
+        return Response({"message": "Cập nhật sản phẩm thành công!"})
+        
+    except Exception as e:
+        print("🚨 LỖI SỬA SẢN PHẨM:", str(e))
+        return Response({"error": str(e)}, status=400)
