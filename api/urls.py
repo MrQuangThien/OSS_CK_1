@@ -10,4 +10,5 @@ urlpatterns = [
     path('dat-hang/', views.dat_hang, name='api_dat_hang'),    
     path('lich-su-don-hang/', views.lich_su_don_hang, name='lich_su_don_hang'),
     path('don-hang/<int:pk>/', views.chi_tiet_don_hang, name='chi_tiet_don_hang'),
+    path('don-hang/<int:pk>/status/', views.update_order_status),
 ]

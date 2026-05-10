@@ -144,3 +144,14 @@ def chi_tiet_don_hang(request, pk):
     except Exception as e:
         print("🚨 LỖI API CHI TIẾT:", str(e))
         return Response({"error": str(e)}, status=400)
+@api_view(['PATCH']) 
+def update_order_status(request, pk):
+    try:
+        don_hang = DonHang.objects.get(pk=pk)
+        moi_trang_thai = request.data.get('trang_thai')
+        if moi_trang_thai:
+            don_hang.trang_thai = moi_trang_thai
+            don_hang.save()
+            return Response({"message": "Cập nhật thành công!"})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)    

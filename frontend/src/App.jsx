@@ -14,11 +14,7 @@ import OrderDetail from './pages/OrderDetail'
 import AllProducts from './pages/AllProducts'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminProducts from '.pagesadminAdminProducts'
-import AdminAddProduct from '.pagesadminAdminAddProduct'
-import AdminEditProduct from '.pagesadminAdminEditProduct'
-import AdminCategories from '.pagesadminAdminCategories'
-
+import AdminOrders from './pages/admin/AdminOrders'
 
 function App() {
   const [gioHang, setGioHang] = useState([])
@@ -122,7 +118,7 @@ function App() {
 
       {/* RUỘT TRANG WEB */}
       <main className="flex-grow-1 pt-4 pb-5">
-        <Routes>{/* LUỒNG KHACHHANG  */}
+        <Routes>
           <Route path="/" element={<Home onThemVaoGio={handleThemVaoGio} />} />
           <Route path="/san-pham/:id" element={<Detail onThemVaoGio={handleThemVaoGio} />} />
           <Route path="/gio-hang" element={<Cart gioHang={gioHang} onXoaKhoiGio={handleXoaKhoiGio} onTangSoLuong={handleTangSoLuong} onGiamSoLuong={handleGiamSoLuong} />} />
@@ -135,6 +131,7 @@ function App() {
         {/* LUỒNG ADMIN  */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> 
+          <Route path="don-hang" element={<AdminOrders />} /> 
         </Route>
         </Routes>
       </main>
