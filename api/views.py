@@ -133,9 +133,31 @@ def lich_su_don_hang(request):
 @api_view(['GET'])
 def chi_tiet_don_hang(request, pk):
     try:
+        # 1. Tìm đơn hàng
         dh = get_object_or_404(DonHang, pk=pk)
+        
+        # 2. Lấy thông tin cơ bản của đơn hàng
         serializer = DonHangSerializer(dh)
-        return Response(serializer.data)
+        data = serializer.data
+        
+        # 3. LẤY THÊM CHI TIẾT SẢN PHẨM VÀ ĐÍNH KÈM VÀO
+        chi_tiets = ChiTietDonHang.objects.filter(don_hang=dh).select_related('san_pham')
+        items = []
+        for ct in chi_tiets:
+            items.append({
+                "san_pham": {
+                    "ten_san_pham": ct.san_pham.ten_san_pham,
+                    "hinh_anh": ct.san_pham.hinh_anh.url if ct.san_pham.hinh_anh else None
+                },
+                "don_gia": ct.don_gia,
+                "so_luong_mua": ct.so_luong_mua
+            })
+        
+        # Gắn mảng items vào cục data trả về
+        data['items'] = items
+        
+        return Response(data)
+
     except Exception as e:
         print("🚨 LỖI API CHI TIẾT:", str(e))
         return Response({"error": str(e)}, status=400)

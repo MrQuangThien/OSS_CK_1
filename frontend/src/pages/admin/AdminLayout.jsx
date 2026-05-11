@@ -32,7 +32,10 @@ function AdminLayout() {
           </li>
 
           <li>
-            <Link to="/admin/don-hang" className={isActive('/admin/don-hang')}>
+            <Link 
+              to="/admin/don-hang" 
+              className={path.includes('/admin/don-hang') || path.includes('/admin/pos') ? 'active' : ''}
+            >
               <i className="fa-solid fa-cart-flatbed icon-main"></i> Quản lý Đơn hàng
             </Link>
           </li>

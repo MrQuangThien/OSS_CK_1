@@ -22,6 +22,8 @@ import AdminImports from './pages/admin/AdminImports'
 import AdminInventory from './pages/admin/AdminInventory'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminOrders from './pages/admin/AdminOrders'
+import AdminOrderDetail from './pages/admin/AdminOrderDetail'
+import AdminPOS from './pages/admin/AdminPOS'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminSuppliers from './pages/admin/AdminSuppliers'
 import AdminCustomers from './pages/admin/AdminCustomers'
@@ -32,7 +34,7 @@ function App() {
   const [username, setUsername] = useState(localStorage.getItem('username') || null)
 
   const navigate = useNavigate()
-  const location = useLocation() 
+  const location = useLocation()
   const [tuKhoa, setTuKhoa] = useState("")
 
   // KHAI BÁO BIẾN NÀY ĐỂ XÁC ĐỊNH TRANG ADMIN
@@ -49,7 +51,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('username')
-    localStorage.removeItem('role') 
+    localStorage.removeItem('role')
     setUsername(null)
     toast.info('👋 Bạn đã đăng xuất thành công!')
     navigate('/')
@@ -88,7 +90,7 @@ function App() {
       {!isAdminRoute && (
         <header className="sticky-top bg-white shadow-sm py-3">
           <div className="container d-flex justify-content-between align-items-center">
-            
+
             <Link to="/" className="fs-3 fw-bold text-orange text-decoration-none d-flex align-items-center gap-2">
               <i className="fa-solid fa-laptop-code"></i>
               <span>Computer<span className="text-dark">Shop</span></span>
@@ -106,7 +108,7 @@ function App() {
                 <div className="position-relative">
                   <i className="fa-solid fa-cart-shopping fs-4 text-orange"></i>
                   {gioHang.length > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{fontSize: '0.65rem'}}>
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white" style={{ fontSize: '0.65rem' }}>
                       {gioHang.length}
                     </span>
                   )}
@@ -137,7 +139,6 @@ function App() {
         </header>
       )}
 
-      {/* RUỘT TRANG WEB */}
       <main className={`flex-grow-1 ${isAdminRoute ? '' : 'pt-4 pb-5'}`}>
         <Routes>
           <Route path="/" element={<Home onThemVaoGio={handleThemVaoGio} />} />
@@ -149,10 +150,12 @@ function App() {
           <Route path="/thanh-toan" element={<Checkout gioHang={gioHang} onXoaSachGio={() => setGioHang([])} />} />
           <Route path="/dang-nhap" element={<Login setUsername={setUsername} />} />
           <Route path="/dang-ky" element={<Register />} />
-          
+
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="don-hang" element={<AdminOrders />} />
+            <Route path="pos" element={<AdminPOS />} />
+            <Route path="don-hang/:id" element={<AdminOrderDetail />} />
             <Route path="san-pham" element={<AdminProducts />} />
             <Route path="san-pham/them" element={<AdminAddProduct />} />
             <Route path="san-pham/sua/:id" element={<AdminEditProduct />} />
@@ -206,7 +209,7 @@ function App() {
             </div>
             <hr className="border-secondary opacity-25" />
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center small">
-              <div className="mb-2 mb-md-0 text-center text-md-start">© 2026 ComputerShop. All rights reserved.<br/><span className="text-muted">Đồ án môn học: Phát triển phần mềm Mã nguồn mở.</span></div>
+              <div className="mb-2 mb-md-0 text-center text-md-start">© 2026 ComputerShop. All rights reserved.<br /><span className="text-muted">Đồ án môn học: Phát triển phần mềm Mã nguồn mở.</span></div>
             </div>
           </div>
         </footer>
