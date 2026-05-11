@@ -24,6 +24,7 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminOrders from './pages/admin/AdminOrders'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminSuppliers from './pages/admin/AdminSuppliers'
+import AdminCustomers from './pages/admin/AdminCustomers'
 
 function App() {
   const [gioHang, setGioHang] = useState([])
@@ -169,6 +170,7 @@ function App() {
             <Route path="nhap-hang" element={<AdminImports />} />
             <Route path="nhap-hang/tao" element={<AdminAddImport />} />
             <Route path="nhap-hang/:id" element={<AdminImportDetail />} />
+            <Route path="khach-hang" element={<AdminCustomers />} />
           </Route>
         </Routes>
       </main>
