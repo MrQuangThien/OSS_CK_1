@@ -557,3 +557,97 @@ body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verda
 .bg-success-custom { background-color: #28a745; }
 .bg-warning-custom { background-color: #ffc107; }
 .bg-danger-custom { background-color: #dc3545; }
+/* ============================================== */
+/* GIAO DIỆN TRANG CHỦ THEO STYLE SHOPHUB (CAM)   */
+/* ============================================== */
+
+:root {
+  --primary-orange: #fd5e14;
+  --light-orange: #fff4ed;
+}
+
+.bg-orange { background-color: var(--primary-orange) !important; }
+.text-orange { color: var(--primary-orange) !important; }
+.border-orange { border-color: var(--primary-orange) !important; }
+
+.btn-orange {
+  background-color: var(--primary-orange);
+  color: white;
+  border: none;
+  transition: 0.3s;
+}
+.btn-orange:hover {
+  background-color: #e04c0b;
+  color: white;
+}
+
+/* Hiệu ứng hover cho thẻ Sản phẩm */
+.product-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #f0f0f0;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  border-color: var(--primary-orange);
+}
+
+.category-icon-box {
+  width: 80px;
+  height: 80px;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  transition: 0.3s;
+}
+.category-box:hover .category-icon-box {
+  background-color: var(--light-orange);
+}
+/* ============================================== */
+/* THANH TÌM KIẾM CUSTOM                          */
+/* ============================================== */
+.search-container {
+  flex-grow: 1;
+  max-width: 600px;
+  margin: 0 2rem;
+}
+
+.search-box-custom {
+  display: flex;
+  border: 2px solid var(--primary-orange);
+  border-radius: 50px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi click vào thanh tìm kiếm */
+.search-box-custom:focus-within {
+  box-shadow: 0 0 0 4px rgba(253, 94, 20, 0.2) !important;
+}
+
+.search-box-custom input {
+  border: none;
+  box-shadow: none;
+  padding: 12px 25px; /* Tăng độ dày cho input */
+  width: 100%;
+  outline: none;
+  font-size: 1rem;
+}
+
+.search-box-custom button {
+  background-color: var(--primary-orange);
+  color: white;
+  border: none;
+  padding: 0 30px; /* Nút bấm rộng hơn */
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-box-custom button:hover {
+  background-color: #e04c0b;
+}

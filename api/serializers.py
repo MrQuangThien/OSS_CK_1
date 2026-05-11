@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import LoaiHang, SanPham, KhachHang, KhoHang, DonHang, ChiTietDonHang
+from .models import LoaiHang, SanPham, KhachHang, KhoHang, DonHang, ChiTietDonHang, NhaCungCap
 
 # 1. Serializer cho Loại Hàng (Danh mục)
 class LoaiHangSerializer(serializers.ModelSerializer):
@@ -45,7 +45,6 @@ class DonHangSerializer(serializers.ModelSerializer):
         model = DonHang
         # Khai báo các cột cần thiết gửi sang React
         fields = ['id', 'ngay_dat_hang', 'tong_tien', 'trang_thai', 'khach_hang', 'chi_tiet']
-
 
 class NhaCungCapSerializer(serializers.ModelSerializer):
     class Meta:
