@@ -1,60 +1,64 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, Navigate } from 'react-router-dom'
 
 function AdminLayout() {
   const location = useLocation()
   const path = location.pathname
 
-  // Hàm hỗ trợ kiểm tra menu có đang được chọn hay không
+  // LẤY QUYỀN HẠN CỦA NGƯỜI ĐANG ĐĂNG NHẬP
+  const role = localStorage.getItem('role')
+  const username = localStorage.getItem('username')
+
+  // TRẠM GÁC: Nếu chưa đăng nhập HOẶC chỉ là Khách hàng -> Đá văng ra trang đăng nhập
+  if (!role || role === 'Khách hàng') {
+    return <Navigate to="/dang-nhap" replace />
+  }
+
   const isActive = (matchString) => path.includes(matchString) ? 'active' : ''
-  
-  // Hàm kiểm tra menu cha có nên mở ra không
   const isMenuOpen = (matchArray) => matchArray.some(str => path.includes(str)) ? 'show' : ''
   const isParentActive = (matchArray) => matchArray.some(str => path.includes(str)) ? 'active' : ''
 
   return (
     <>
-      {/* SIDEBAR BÊN TRÁI */}
-      <div className="sidebar">
+      <div className="sidebar" style={{ minHeight: '100vh' }}>
         <div className="sidebar-brand">
           <i className="fa-solid fa-user-shield text-primary me-2"></i> ADMIN PANEL
         </div>
 
         <ul className="sidebar-menu">
-          {/* 1. Thống kê báo cáo */}
           <li>
             <Link to="/admin" className={path === '/admin' ? 'active' : ''}>
               <i className="fa-solid fa-chart-pie icon-main"></i> Thống kê báo cáo
             </Link>
           </li>
 
-          {/* 2. Quản lý Đơn hàng */}
           <li>
             <Link to="/admin/don-hang" className={isActive('/admin/don-hang')}>
               <i className="fa-solid fa-cart-flatbed icon-main"></i> Quản lý Đơn hàng
             </Link>
           </li>
 
-          {/* 3. Tài Khoản (Có Submenu) */}
-          <li>
-            <div className={`menu-toggle ${isParentActive(['/khach-hang', '/nhan-vien'])}`} data-bs-toggle="collapse" data-bs-target="#menuNhanSu" aria-expanded={isMenuOpen(['/khach-hang', '/nhan-vien']) ? 'true' : 'false'}>
-              <i className="fa-solid fa-users icon-main"></i> Tài Khoản
-              <i className="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
-            </div>
-            <ul className={`collapse sidebar-submenu ${isMenuOpen(['/khach-hang', '/nhan-vien'])}`} id="menuNhanSu">
-              <li>
-                <Link to="/admin/khach-hang" className={isActive('/khach-hang')}>
-                  <i className="fa-solid fa-user-tag"></i> Danh sách Khách hàng
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin/nhan-vien" className={isActive('/nhan-vien')}>
-                  <i className="fa-solid fa-user-tie"></i> Quản lý Nhân viên
-                </Link>
-              </li>
-            </ul>
-          </li>
+          {/* CHẶN QUYỀN: CHỈ ADMIN VÀ QUẢN LÝ MỚI THẤY MENU TÀI KHOẢN */}
+          {(role === 'Admin' || role === 'Quản lý') && (
+            <li>
+              <div className={`menu-toggle ${isParentActive(['/khach-hang', '/nhan-vien'])}`} data-bs-toggle="collapse" data-bs-target="#menuNhanSu" aria-expanded={isMenuOpen(['/khach-hang', '/nhan-vien']) ? 'true' : 'false'}>
+                <i className="fa-solid fa-users icon-main"></i> Tài Khoản
+                <i className="fa-solid fa-chevron-down dropdown-toggle-icon"></i>
+              </div>
+              <ul className={`collapse sidebar-submenu ${isMenuOpen(['/khach-hang', '/nhan-vien'])}`} id="menuNhanSu">
+                <li>
+                  <Link to="/admin/khach-hang" className={isActive('/khach-hang')}>
+                    <i className="fa-solid fa-user-tag"></i> Danh sách Khách hàng
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/nhan-vien" className={isActive('/nhan-vien')}>
+                    <i className="fa-solid fa-user-tie"></i> Quản lý Nhân viên
+                  </Link>
+                </li>
+              </ul>
+            </li>
+          )}
 
-          {/* 4. Hàng Hóa (Có Submenu) */}
           <li>
             <div className={`menu-toggle ${isParentActive(['/san-pham', '/loai-hang'])}`} data-bs-toggle="collapse" data-bs-target="#menuSanPham" aria-expanded={isMenuOpen(['/san-pham', '/loai-hang']) ? 'true' : 'false'}>
               <i className="fa-solid fa-laptop icon-main"></i> Hàng hóa
@@ -74,7 +78,6 @@ function AdminLayout() {
             </ul>
           </li>
 
-          {/* 5. Quản lý Kho (Có Submenu) */}
           <li>
             <div className={`menu-toggle ${isParentActive(['/kho-hang', '/nhap-hang', '/nha-cung-cap'])}`} data-bs-toggle="collapse" data-bs-target="#menuKhoHang" aria-expanded={isMenuOpen(['/kho-hang', '/nhap-hang', '/nha-cung-cap']) ? 'true' : 'false'}>
               <i className="fa-solid fa-warehouse icon-main"></i> Quản lý Kho
@@ -102,21 +105,25 @@ function AdminLayout() {
         </ul>
       </div>
 
-      {/* NỘI DUNG CHÍNH BÊN PHẢI */}
-      <div className="main-content">
-        <div className="top-navbar">
+      <div className="main-content" style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+        <div className="top-navbar bg-white shadow-sm px-4 py-3 d-flex justify-content-between mb-4">
           <h4 className="mb-0 fw-bold text-dark">Hệ thống Quản trị</h4>
           <div className="d-flex align-items-center">
-            {/* Tạm thời gán chữ Admin, sau này bạn có thể thay bằng State Username giống bên trang chủ */}
-            <span className="me-3 text-muted">Xin chào, <strong className="text-primary">Admin</strong></span>
-            <Link to="/" className="btn btn-sm btn-outline-primary fw-bold" target="_blank">
+            <span className="me-3 text-muted d-flex align-items-center">
+              Xin chào, <strong className="text-primary ms-1">{username}</strong>
+              <span className={`badge ms-2 ${role === 'Admin' ? 'bg-danger' : role === 'Quản lý' ? 'bg-warning text-dark' : 'bg-success'}`}>
+                {role}
+              </span>
+            </span>
+            <Link to="/" className="btn btn-sm btn-outline-primary fw-bold">
               <i className="fa-solid fa-store me-1"></i> Xem Website
             </Link>
           </div>
         </div>
 
-        {/* Chỗ này sẽ render các trang như Dashboard, Sản phẩm, Đơn hàng... */}
-        <Outlet />
+        <div className="px-4 pb-4">
+          <Outlet />
+        </div>
       </div>
     </>
   )

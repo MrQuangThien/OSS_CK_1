@@ -59,11 +59,20 @@ def login_user(request):
     user = authenticate(username=username, password=password)
 
     if user is not None:
+        # XÁC ĐỊNH VAI TRÒ ĐỂ GỬI VỀ REACT
+        if user.is_superuser:
+            role = 'Admin'
+        elif user.is_staff:
+            role = user.last_name or 'Quản lý'
+        else:
+            role = 'Khách hàng'
+
         return Response({
             'message': 'Đăng nhập thành công!',
             'user': {
                 'username': user.username,
-                'email': user.email
+                'email': user.email,
+                'role': role  # Gửi thêm role về Frontend
             }
         }, status=status.HTTP_200_OK)
     else:
@@ -384,18 +393,116 @@ def xoa_nha_cung_cap(request, pk):
 @api_view(['GET'])
 def danh_sach_khach_hang(request):
     try:
-        khach_hangs = KhachHang.objects.all().order_by('-id')
+        # Lấy tất cả tài khoản là KHÁCH HÀNG (is_staff = False)
+        khach_hangs = User.objects.filter(is_staff=False).order_by('-id')
         data = []
         for kh in khach_hangs:
-            # Đếm xem khách này đã mua bao nhiêu đơn hàng (Tùy chọn thêm cho xịn)
-            so_don = DonHang.objects.filter(khach_hang=kh).count()
             data.append({
                 "id": kh.id,
-                "ho_ten": kh.ho_ten,
-                "so_dien_thoai": kh.so_dien_thoai,
-                "dia_chi": kh.dia_chi,
-                "so_don_hang": so_don
+                "username": kh.username,
+                "email": kh.email if kh.email else "Chưa cập nhật",
+                "ngay_tham_gia": kh.date_joined.strftime("%d/%m/%Y")
             })
         return Response(data, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['GET'])
+def danh_sach_nhan_vien(request):
+    # CHỈ LẤY NHỮNG AI LÀ STAFF (Loại bỏ hoàn toàn khách vãng lai)
+    users = User.objects.filter(is_staff=True).order_by('-id')
+    data = []
+    for u in users:
+        if u.is_superuser:
+            vai_tro = "Admin"
+        else:
+            vai_tro = u.last_name if u.last_name else "Nhân viên"
+            
+        data.append({
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "vai_tro": vai_tro,
+            "ngay_tham_gia": u.date_joined.strftime("%d/%m/%Y")
+        })
+    return Response(data, status=200)
+
+@api_view(['POST'])
+def them_nhan_vien(request):
+    data = request.data
+    try:
+        if User.objects.filter(username=data['username']).exists():
+            return Response({"error": "Tên đăng nhập đã tồn tại!"}, status=400)
+        
+        user = User.objects.create_user(
+            username=data['username'],
+            password=data['password'],
+            email=data.get('email', '')
+        )
+        
+        vai_tro = data.get('vai_tro', 'nhan_vien')
+        
+        # TẤT CẢ NHÂN SỰ ĐỀU PHẢI CÓ QUYỀN STAFF ĐỂ PHÂN BIỆT VỚI KHÁCH HÀNG
+        user.is_staff = True 
+
+        if vai_tro == 'admin':
+            user.is_superuser = True
+            user.last_name = 'Admin'
+        elif vai_tro == 'quan_ly':
+            user.is_superuser = False
+            user.last_name = 'Quản lý'
+        else:
+            user.is_superuser = False
+            user.last_name = 'Nhân viên'
+            
+        user.save()
+        return Response({"message": "Thêm tài khoản thành công!"}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['DELETE'])
+def xoa_nhan_vien(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+        if user.is_superuser:
+            return Response({"error": "Không thể xóa tài khoản Admin tối cao!"}, status=400)
+        
+        user.delete()
+        return Response({"message": "Đã xóa nhân viên!"}, status=204)
+    except Exception as e:
+        # Bắt lỗi ràng buộc dữ liệu nếu có
+        return Response({"error": "Không thể xóa do tài khoản này đang có dữ liệu liên kết!"}, status=400)
+
+@api_view(['PATCH'])
+def sua_nhan_vien(request, pk):
+    try:
+        user = User.objects.get(pk=pk)
+        data = request.data
+        
+        # Cập nhật Email
+        if 'email' in data:
+            user.email = data['email']
+            
+        # Cập nhật Mật khẩu (Chỉ cập nhật nếu người dùng có gõ mật khẩu mới)
+        if 'password' in data and data['password'].strip() != '':
+            user.set_password(data['password'])
+            
+        # Cập nhật Phân quyền
+        if 'vai_tro' in data:
+            vai_tro = data['vai_tro']
+            if vai_tro == 'admin':
+                user.is_superuser = True
+                user.last_name = 'Admin'
+            elif vai_tro == 'quan_ly':
+                user.is_superuser = False
+                user.last_name = 'Quản lý'
+            else:
+                user.is_superuser = False
+                user.last_name = 'Nhân viên'
+                
+        user.save()
+        return Response({"message": "Cập nhật nhân sự thành công!"})
+    except User.DoesNotExist:
+        return Response({"error": "Không tìm thấy nhân viên!"}, status=404)
     except Exception as e:
         return Response({"error": str(e)}, status=400)

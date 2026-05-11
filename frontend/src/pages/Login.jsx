@@ -16,18 +16,29 @@ function Login({ setUsername }) {
     // Gửi dữ liệu xuống API đăng nhập của Django
     axios.post('http://127.0.0.1:8000/api/login/', formData)
       .then(response => {
-        toast.success('🎉 ' + response.data.message)
-        
+        // 1. Lưu thông tin vào bộ nhớ trình duyệt
         localStorage.setItem('username', response.data.user.username)
+        localStorage.setItem('role', response.data.user.role) // ĐÃ SỬA: Dùng response thay vì res
         
-        // THÊM DÒNG NÀY ĐỂ BÁO CHO APP.JSX CẬP NHẬT GIAO DIỆN HEADER
+        // 2. Báo cho App.jsx cập nhật giao diện
         setUsername(response.data.user.username)
         
-        navigate('/') 
+        // 3. Hiện thông báo
+        toast.success('🎉 ' + response.data.message)
+        
+        // 4. CHUYỂN TRANG THÔNG MINH DỰA VÀO QUYỀN
+        const userRole = response.data.user.role
+        if (userRole === 'Admin' || userRole === 'Quản lý') {
+          navigate('/admin') // Nhân sự thì vào thẳng trang quản trị
+        } else {
+          navigate('/') // Khách mua hàng thì quay về trang chủ
+        }
       })
       .catch(error => {
         if (error.response && error.response.data) {
           toast.error('❌ ' + error.response.data.error)
+        } else {
+          toast.error('❌ Sai tên đăng nhập hoặc mật khẩu!')
         }
       })
   }

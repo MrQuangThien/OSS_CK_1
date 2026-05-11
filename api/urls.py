@@ -27,4 +27,8 @@ urlpatterns = [
     path('nha-cung-cap/<int:pk>/sua/', views.sua_nha_cung_cap),
     path('nha-cung-cap/<int:pk>/xoa/', views.xoa_nha_cung_cap),
     path('khach-hang/', views.danh_sach_khach_hang),
+    path('nhan-vien/', views.danh_sach_nhan_vien),
+    path('nhan-vien/them/', views.them_nhan_vien),
+    path('nhan-vien/<int:pk>/xoa/', views.xoa_nhan_vien),
+    path('nhan-vien/<int:pk>/sua/', views.sua_nhan_vien),
 ]
