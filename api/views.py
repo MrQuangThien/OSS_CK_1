@@ -28,9 +28,25 @@ def get_loai_hang(request):
 @api_view(['GET'])
 def get_chi_tiet_sp(request, pk):
     try:
+        # 1. Lấy sản phẩm và dịch ra JSON
         sp = SanPham.objects.get(pk=pk)
         serializer = SanPhamSerializer(sp)
-        return Response(serializer.data)
+        data = serializer.data
+        
+        # 2. LẤY THÊM MẢNG ẢNH PHỤ TỪ DATABASE
+        anh_phus = HinhAnhSanPham.objects.filter(san_pham=sp)
+        danh_sach_anh = []
+        for anh in anh_phus:
+            if anh.hinh_anh:  # Kiểm tra xem có file ảnh không
+                danh_sach_anh.append({
+                    "hinh_anh": anh.hinh_anh.url
+                })
+                
+        # 3. Gắn mảng ảnh phụ vào cục data với tên chuẩn để React nhận diện
+        data['hinhanhsanpham_set'] = danh_sach_anh
+        
+        return Response(data)
+        
     except SanPham.DoesNotExist:
         return Response({'loi': 'Không tìm thấy sản phẩm'}, status=404)
 
@@ -124,10 +140,37 @@ def dat_hang(request):
 @api_view(['GET'])
 def lich_su_don_hang(request):
     try:
-        don_hangs = DonHang.objects.all().order_by('-ngay_dat_hang')
+        # Lấy username từ React gửi lên qua query parameter
+        username = request.query_params.get('username')
+        
+        if username:
+            # Dành cho trang Khách hàng: Lọc đúng đơn của người này
+            don_hangs = DonHang.objects.filter(khach_hang__user__username=username).order_by('-ngay_dat_hang')
+        else:
+            # Dành cho trang Admin: Không có username thì lấy TẤT CẢ
+            don_hangs = DonHang.objects.all().order_by('-ngay_dat_hang')
+            
+        # Dịch ra JSON dùng Serializer mặc định (Để giữ lại thông tin khach_hang cho Admin)
         serializer = DonHangSerializer(don_hangs, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+        
+        # Chèn thêm mảng ảnh và tên sản phẩm vào để hiển thị cho đẹp
+        for i, dh in enumerate(don_hangs):
+            chi_tiets = ChiTietDonHang.objects.filter(don_hang=dh).select_related('san_pham')
+            items = []
+            for ct in chi_tiets:
+                items.append({
+                    "ten_san_pham": ct.san_pham.ten_san_pham,
+                    "hinh_anh": ct.san_pham.hinh_anh.url if ct.san_pham.hinh_anh else None,
+                    "so_luong": ct.so_luong_mua,
+                    "don_gia": ct.don_gia
+                })
+            # Gắn mảng items vào key 'chi_tiet'
+            data[i]['chi_tiet'] = items
+            
+        return Response(data)
     except Exception as e:
+        print("LỖI API LỊCH SỬ:", str(e))
         return Response({'error': str(e)}, status=500)
 
 @api_view(['GET'])
@@ -526,5 +569,45 @@ def sua_nhan_vien(request, pk):
         return Response({"message": "Cập nhật nhân sự thành công!"})
     except User.DoesNotExist:
         return Response({"error": "Không tìm thấy nhân viên!"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+    
+@api_view(['POST'])
+def thong_tin_ca_nhan(request):
+    username = request.data.get('username')
+    action = request.data.get('action', 'get') # 'get' để lấy thông tin, 'update' để lưu
+
+    if not username:
+        return Response({"error": "Vui lòng đăng nhập!"}, status=400)
+
+    try:
+        user = User.objects.get(username=username)
+        # Tìm Khách hàng liên kết với User này, nếu chưa có thì tự động tạo mới
+        kh, created = KhachHang.objects.get_or_create(user=user)
+
+        if action == 'update':
+            # Lưu dữ liệu mới
+            kh.ho_ten = request.data.get('ho_ten', kh.ho_ten)
+            kh.so_dien_thoai = request.data.get('so_dien_thoai', kh.so_dien_thoai)
+            kh.dia_chi = request.data.get('dia_chi', kh.dia_chi)
+            kh.save()
+            
+            # Cập nhật email cho User
+            if 'email' in request.data:
+                user.email = request.data['email']
+                user.save()
+                
+            return Response({"message": "Cập nhật thông tin thành công!"})
+            
+        else: # action == 'get'
+            return Response({
+                "ho_ten": kh.ho_ten if kh.ho_ten else "",
+                "so_dien_thoai": kh.so_dien_thoai if kh.so_dien_thoai else "",
+                "dia_chi": kh.dia_chi if kh.dia_chi else "",
+                "email": user.email if user.email else ""
+            })
+            
+    except User.DoesNotExist:
+        return Response({"error": "Không tìm thấy người dùng!"}, status=404)
     except Exception as e:
         return Response({"error": str(e)}, status=400)

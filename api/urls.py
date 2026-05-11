@@ -32,4 +32,5 @@ urlpatterns = [
     path('nhan-vien/them/', views.them_nhan_vien),
     path('nhan-vien/<int:pk>/xoa/', views.xoa_nhan_vien),
     path('nhan-vien/<int:pk>/sua/', views.sua_nhan_vien),
+    path('thong-tin-ca-nhan/', views.thong_tin_ca_nhan),
 ]

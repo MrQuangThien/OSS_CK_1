@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom' // Thêm useLocation
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
@@ -8,11 +8,7 @@ function Checkout({ gioHang, onXoaSachGio }) {
   const location = useLocation()
 
   // 1. LOGIC QUAN TRỌNG: XÁC ĐỊNH NGUỒN DỮ LIỆU THANH TOÁN
-  // Nếu đi từ nút "Mua Ngay" (có location.state.buyNowItem), ta chỉ lấy 1 món đó.
-  // Ngược lại (đi từ Giỏ hàng sang), ta dùng toàn bộ gioHang.
   const checkoutItems = location.state?.buyNowItem ? [location.state.buyNowItem] : gioHang;
-
-  // Tính tổng tiền dựa trên danh sách đã chốt ở trên
   const tongTien = checkoutItems.reduce((total, item) => total + (Number(item.gia_ban) * item.so_luong), 0)
 
   const [khachHang, setKhachHang] = useState({
@@ -20,6 +16,24 @@ function Checkout({ gioHang, onXoaSachGio }) {
     so_dien_thoai: '',
     dia_chi: ''
   })
+
+  // 2. TỰ ĐỘNG ĐIỀN THÔNG TIN NẾU ĐÃ ĐĂNG NHẬP
+  useEffect(() => {
+    const username = localStorage.getItem('username')
+    if (username) {
+      // Gọi API lấy thông tin Profile mà ta đã tạo trước đó
+      axios.post('http://127.0.0.1:8000/api/thong-tin-ca-nhan/', { username: username, action: 'get' })
+        .then(res => {
+          // Cập nhật state khachHang bằng dữ liệu lấy được
+          setKhachHang({
+            ho_ten: res.data.ho_ten || '',
+            so_dien_thoai: res.data.so_dien_thoai || '',
+            dia_chi: res.data.dia_chi || ''
+          })
+        })
+        .catch(err => console.error("Lỗi tự động điền thông tin:", err))
+    }
+  }, [])
 
   // Hàm fix gãy ảnh
   const getImageUrl = (path) => {
@@ -40,7 +54,7 @@ function Checkout({ gioHang, onXoaSachGio }) {
     
     const duLieuDonHang = {
       khach_hang: khachHang,
-      san_phams: checkoutItems, // Gửi danh sách đúng món đã chọn
+      san_phams: checkoutItems, 
       tong_tien: tongTien
     }
 
@@ -48,12 +62,10 @@ function Checkout({ gioHang, onXoaSachGio }) {
       .then(response => {
         toast.success('🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm.')
         
-        // Nếu họ thanh toán từ Giỏ hàng chung, thì xóa sạch giỏ hàng.
-        // Nếu mua ngay 1 món, thì không động chạm tới giỏ hàng.
+        // Nếu mua từ Giỏ hàng chung thì xóa sạch giỏ, mua ngay thì giữ nguyên
         if (!location.state?.buyNowItem) {
           onXoaSachGio()
         }
-        
         navigate('/')
       })
       .catch(error => {
@@ -111,7 +123,6 @@ function Checkout({ gioHang, onXoaSachGio }) {
             <h5 className="fw-bold border-bottom pb-3 mb-4">Tóm tắt đơn hàng</h5>
             
             <div className="cart-items-list mb-4" style={{maxHeight: '350px', overflowY: 'auto', paddingRight: '5px'}}>
-              {/* Lặp từ mảng checkoutItems thay vì gioHang */}
               {checkoutItems.map((item, index) => (
                 <div key={index} className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
                   <div className="d-flex align-items-center gap-3">

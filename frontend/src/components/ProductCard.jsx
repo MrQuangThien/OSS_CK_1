@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 function ProductCard({ sp, onThemVaoGio }) {
-  // Hàm xử lý link ảnh
+  // Hàm xử lý link ảnh chống gãy
   const getImageUrl = (path) => {
     if (!path) return "https://via.placeholder.com/300x300?text=No+Image";
     if (path.startsWith('http')) return path;
@@ -11,52 +11,55 @@ function ProductCard({ sp, onThemVaoGio }) {
   };
 
   return (
-    <div className="card product-card h-100 rounded-4 position-relative">
-      {/* Hiển thị Nhãn MỚI hoặc HOT */}
-      {sp.la_san_pham_moi && !sp.uu_dai && (
-        <span className="badge bg-success position-absolute top-0 start-0 m-3 z-1">MỚI</span>
-      )}
-      {sp.uu_dai && (
-        <span className="badge bg-danger position-absolute top-0 start-0 m-3 z-1">HOT</span>
-      )}
-
-      {/* Sửa lại Link đúng với App.jsx */}
-      <Link to={`/san-pham/${sp.id}`}>
-        <img 
-          src={getImageUrl(sp.hinh_anh)} 
-          className="card-img-top p-4" 
-          alt={sp.ten_san_pham} 
-          style={{height: '250px', objectFit: 'contain'}} 
-        />
-      </Link>
+    <div className="card h-100 border-light-subtle shadow-sm rounded-4 position-relative transition-hover product-card">
       
-      <div className="card-body border-top d-flex flex-column">
-        <h6 className="card-title fw-bold text-truncate" title={sp.ten_san_pham}>
-          {sp.ten_san_pham}
-        </h6>
+      {/* KHU VỰC HIỂN THỊ NHÃN DÁN (BADGES) */}
+      <div className="position-absolute top-0 start-0 p-3 z-1 d-flex flex-column gap-1 align-items-start">
         
-        <div className="d-flex justify-content-between align-items-center mt-2 mb-3">
-          <span className="text-orange fw-bold fs-5 mb-0">
-            {Number(sp.gia_ban).toLocaleString()} ₫
+        {sp.la_san_pham_moi && (
+          <span className="badge bg-success rounded-1 shadow-sm px-2 py-1">MỚI</span>
+        )}
+        
+        {/* ĐÃ SỬA Ở ĐÂY: Đổi từ sp.uu_dai thành sp.la_san_pham_noi_bat */}
+        {sp.la_san_pham_noi_bat && (
+          <span className="badge bg-danger rounded-1 shadow-sm px-2 py-1">
+            <i className="fa-solid fa-fire me-1"></i>HOT
           </span>
+        )}
+
+      </div>
+
+      <Link to={`/san-pham/${sp.id}`} className="text-decoration-none">
+        <div className="p-3 d-flex justify-content-center align-items-center bg-white rounded-top-4" style={{height: '220px'}}>
+          <img src={getImageUrl(sp.hinh_anh)} alt={sp.ten_san_pham} style={{maxWidth: '100%', maxHeight: '100%', objectFit: 'contain'}} />
+        </div>
+      </Link>
+
+      <div className="card-body d-flex flex-column p-3 bg-white rounded-bottom-4 border-top border-light-subtle">
+        <Link to={`/san-pham/${sp.id}`} className="text-decoration-none text-dark fw-bold mb-2 product-title" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '45px'}}>
+          {sp.ten_san_pham}
+        </Link>
+
+        <div className="d-flex justify-content-between align-items-center mb-3 mt-auto">
+          <span className="text-orange fw-bold fs-5">{Number(sp.gia_ban).toLocaleString('vi-VN')} ₫</span>
           {sp.ton_kho > 0 ? (
-            <span className="badge bg-success px-2 py-1"><i className="fa-solid fa-check me-1"></i>Còn hàng</span>
+            <span className="badge bg-success rounded-pill px-2 py-1" style={{fontSize: '0.7rem'}}><i className="fa-solid fa-check me-1"></i>Còn hàng</span>
           ) : (
-            <span className="badge bg-secondary px-2 py-1"><i className="fa-solid fa-xmark me-1"></i>Hết hàng</span>
+            <span className="badge bg-secondary rounded-pill px-2 py-1" style={{fontSize: '0.7rem'}}>Hết hàng</span>
           )}
         </div>
 
-        {/* Nút thêm vào giỏ được đẩy xuống đáy thẻ */}
         <button 
-          className="btn btn-sm btn-outline-warning w-100 fw-bold mt-auto"
-          disabled={sp.ton_kho <= 0}
           onClick={() => onThemVaoGio(sp)}
+          className={`btn fw-bold w-100 py-2 rounded-3 text-warning-dark ${sp.ton_kho > 0 ? 'btn-outline-warning' : 'btn-light text-muted'}`}
+          disabled={sp.ton_kho <= 0}
+          style={{borderWidth: '2px'}}
         >
-          <i className="fa-solid fa-cart-plus me-1"></i> Thêm vào giỏ
+          <i className="fa-solid fa-cart-plus me-2"></i> {sp.ton_kho > 0 ? 'Thêm vào giỏ' : 'Tạm hết hàng'}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default ProductCard
+export default ProductCard;
