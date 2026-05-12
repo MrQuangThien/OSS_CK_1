@@ -10,9 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='sanpham',
-            name='ton_kho',
-            field=models.IntegerField(default=0, verbose_name='Tồn kho'),
-        ),
+       
     ]
