@@ -10,7 +10,7 @@ function AdminEmployees() {
   const [editingId, setEditingId] = useState(null)
 
   const fetchEmployees = () => {
-    axios.get('http://127.0.0.1:8000/api/nhan-vien/').then(res => setEmployees(res.data))
+    axios.get('https://computershop-api-gbkm.onrender.com/api/nhan-vien/').then(res => setEmployees(res.data))
   }
 
   useEffect(() => { fetchEmployees() }, [])
@@ -21,7 +21,7 @@ function AdminEmployees() {
 
     if (editingId) {
       // ĐANG Ở CHẾ ĐỘ SỬA
-      axios.patch(`http://127.0.0.1:8000/api/nhan-vien/${editingId}/sua/`, formData)
+      axios.patch(`https://computershop-api-gbkm.onrender.com/api/nhan-vien/${editingId}/sua/`, formData)
         .then(() => {
           toast.success("Cập nhật thông tin thành công!")
           cancelEdit() // Reset form
@@ -30,7 +30,7 @@ function AdminEmployees() {
         .catch(err => toast.error(err.response?.data?.error || "Có lỗi khi cập nhật!"))
     } else {
       // ĐANG Ở CHẾ ĐỘ THÊM MỚI
-      axios.post('http://127.0.0.1:8000/api/nhan-vien/them/', formData)
+      axios.post('https://computershop-api-gbkm.onrender.com/api/nhan-vien/them/', formData)
         .then(() => {
           toast.success("Đã cấp tài khoản mới thành công!")
           cancelEdit() // Reset form
@@ -63,7 +63,7 @@ function AdminEmployees() {
 
   const handleDelete = (id) => {
     if (window.confirm("Cảnh báo: Bạn có chắc chắn muốn xóa nhân sự này không?")) {
-      axios.delete(`http://127.0.0.1:8000/api/nhan-vien/${id}/xoa/`)
+      axios.delete(`https://computershop-api-gbkm.onrender.com/api/nhan-vien/${id}/xoa/`)
         .then(() => {
           toast.info("Đã xóa tài khoản nhân sự!")
           fetchEmployees()

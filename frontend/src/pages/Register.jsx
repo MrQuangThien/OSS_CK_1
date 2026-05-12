@@ -20,7 +20,7 @@ function Register() {
     }
 
     // Gửi dữ liệu xuống API đăng ký của Django
-    axios.post('http://127.0.0.1:8000/api/register/', formData)
+    axios.post('https://computershop-api-gbkm.onrender.com/api/register/', formData)
       .then(response => {
         toast.success('🎉 ' + response.data.message)
         navigate('/dang-nhap') 

@@ -12,7 +12,7 @@ function AdminCategories() {
 
   // 1. Tải danh sách
   const fetchCategories = () => {
-    axios.get('http://127.0.0.1:8000/api/loai-hang/')
+    axios.get('https://computershop-api-gbkm.onrender.com/api/loai-hang/')
       .then(res => setCategories(res.data))
       .catch(err => console.error(err))
   }
@@ -24,7 +24,7 @@ function AdminCategories() {
     e.preventDefault()
     if (!newCategory.trim()) return
 
-    axios.post('http://127.0.0.1:8000/api/loai-hang/them/', { ten_loai: newCategory })
+    axios.post('https://computershop-api-gbkm.onrender.com/api/loai-hang/them/', { ten_loai: newCategory })
       .then(() => {
         toast.success("Đã thêm danh mục mới!")
         setNewCategory('')
@@ -36,7 +36,7 @@ function AdminCategories() {
   // 3. Xóa
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa danh mục này? (Sẽ xóa luôn các sản phẩm bên trong nếu có liên kết CASCADE)")) {
-      axios.delete(`http://127.0.0.1:8000/api/loai-hang/${id}/xoa/`)
+      axios.delete(`https://computershop-api-gbkm.onrender.com/api/loai-hang/${id}/xoa/`)
         .then(() => {
           toast.info("Đã xóa danh mục")
           fetchCategories()
@@ -53,7 +53,7 @@ function AdminCategories() {
 
   // 5. Lưu kết quả Sửa
   const saveEdit = (id) => {
-    axios.patch(`http://127.0.0.1:8000/api/loai-hang/${id}/sua/`, { ten_loai: editName })
+    axios.patch(`https://computershop-api-gbkm.onrender.com/api/loai-hang/${id}/sua/`, { ten_loai: editName })
       .then(() => {
         toast.success("Đã cập nhật tên danh mục!")
         setEditingId(null) // Tắt chế độ sửa

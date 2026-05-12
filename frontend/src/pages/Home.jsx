@@ -10,8 +10,8 @@ function Home({ onThemVaoGio }) {
 
   useEffect(() => {
     Promise.all([
-      axios.get('http://127.0.0.1:8000/api/san-pham/'),
-      axios.get('http://127.0.0.1:8000/api/loai-hang/')
+      axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/'),
+      axios.get('https://computershop-api-gbkm.onrender.com/api/loai-hang/')
     ]).then(([resProducts, resCategories]) => {
       setProducts(resProducts.data);
       setCategories(resCategories.data);

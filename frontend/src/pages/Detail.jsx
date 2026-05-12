@@ -16,11 +16,11 @@ function Detail({ onThemVaoGio }) {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `http://127.0.0.1:8000${cleanPath}`;
+    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
   };
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/san-pham/${id}/`)
+    axios.get(`https://computershop-api-gbkm.onrender.com/api/san-pham/${id}/`)
       .then(res => {
         setSp(res.data)
         setHinhAnhHienTai(res.data.hinh_anh || "")

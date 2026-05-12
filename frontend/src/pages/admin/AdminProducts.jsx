@@ -7,7 +7,7 @@ function AdminProducts() {
   const [products, setProducts] = useState([])
 
   const fetchProducts = () => {
-    axios.get('http://127.0.0.1:8000/api/san-pham/').then(res => setProducts(res.data))
+    axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/').then(res => setProducts(res.data))
   }
 
   useEffect(() => { fetchProducts() }, [])
@@ -17,13 +17,13 @@ function AdminProducts() {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `http://127.0.0.1:8000${cleanPath}`;
+    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
       // ĐÃ SỬA CHỮ /xoa/ THÀNH /delete/
-      axios.delete(`http://127.0.0.1:8000/api/san-pham/${id}/delete/`)
+      axios.delete(`https://computershop-api-gbkm.onrender.com/api/san-pham/${id}/delete/`)
         .then(() => {
           toast.info("Đã xóa sản phẩm");
           fetchProducts();

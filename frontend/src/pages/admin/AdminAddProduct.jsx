@@ -21,7 +21,7 @@ function AdminAddProduct() {
   const [hinhAnhPhu, setHinhAnhPhu] = useState([]) 
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/loai-hang/').then(res => setLoaiHangs(res.data))
+    axios.get('https://computershop-api-gbkm.onrender.com/api/loai-hang/').then(res => setLoaiHangs(res.data))
   }, [])
 
   const handleImageChange = (e) => {
@@ -56,7 +56,7 @@ function AdminAddProduct() {
     if (hinhAnh) dataToSend.append('hinh_anh', hinhAnh)
     hinhAnhPhu.forEach(file => dataToSend.append('hinh_anh_phu', file))
 
-    axios.post('http://127.0.0.1:8000/api/san-pham/them/', dataToSend, {
+    axios.post('https://computershop-api-gbkm.onrender.com/api/san-pham/them/', dataToSend, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(() => {

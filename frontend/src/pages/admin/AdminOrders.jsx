@@ -7,7 +7,7 @@ function AdminOrders() {
   const [tuKhoa, setTuKhoa] = useState("")
 
   const fetchOrders = () => {
-    axios.get('http://127.0.0.1:8000/api/lich-su-don-hang/')
+    axios.get('https://computershop-api-gbkm.onrender.com/api/lich-su-don-hang/')
       .then(res => setOrders(res.data))
       .catch(err => console.error(err))
   }

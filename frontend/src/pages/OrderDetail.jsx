@@ -14,13 +14,13 @@ function OrderDetail() {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `http://127.0.0.1:8000${cleanPath}`;
+    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
   };
 
   useEffect(() => {
     // Gọi API lấy dữ liệu chi tiết đơn hàng
     // (Lưu ý: Bạn có thể dùng /api/chi-tiet-don-hang/ hoặc /api/don-hang/ tùy theo urls.py của bạn)
-    axios.get(`http://127.0.0.1:8000/api/chi-tiet-don-hang/${id}/`)
+    axios.get(`https://computershop-api-gbkm.onrender.com/api/chi-tiet-don-hang/${id}/`)
       .then(res => {
         setDonHang(res.data)
         setLoading(false)

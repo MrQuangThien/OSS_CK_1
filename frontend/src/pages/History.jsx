@@ -17,7 +17,7 @@ function History() {
     }
 
     // Truyền username lên Backend để lấy ĐÚNG đơn hàng của người này
-    axios.get(`http://127.0.0.1:8000/api/lich-su-don-hang/?username=${username}`)
+    axios.get(`https://computershop-api-gbkm.onrender.com/api/lich-su-don-hang/?username=${username}`)
       .then(res => {
         setDsDonHang(res.data)
         setLoading(false)
@@ -50,7 +50,7 @@ function History() {
     if (!path) return "https://via.placeholder.com/80x80?text=No+Image";
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
-    return `http://127.0.0.1:8000${cleanPath.startsWith('/media/') ? cleanPath : '/media' + cleanPath}`;
+    return `https://computershop-api-gbkm.onrender.com${cleanPath.startsWith('/media/') ? cleanPath : '/media' + cleanPath}`;
   };
 
   if (loading) {

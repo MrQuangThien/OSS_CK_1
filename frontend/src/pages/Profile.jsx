@@ -24,7 +24,7 @@ function Profile() {
     }
 
     // Lấy thông tin cá nhân
-    axios.post('http://127.0.0.1:8000/api/thong-tin-ca-nhan/', { username: username, action: 'get' })
+    axios.post('https://computershop-api-gbkm.onrender.com/api/thong-tin-ca-nhan/', { username: username, action: 'get' })
       .then(res => {
         setFormData(res.data)
         setLoading(false)
@@ -39,7 +39,7 @@ function Profile() {
     e.preventDefault()
     
     // Gửi yêu cầu cập nhật
-    axios.post('http://127.0.0.1:8000/api/thong-tin-ca-nhan/', { 
+    axios.post('https://computershop-api-gbkm.onrender.com/api/thong-tin-ca-nhan/', { 
       username: username, 
       action: 'update',
       ...formData

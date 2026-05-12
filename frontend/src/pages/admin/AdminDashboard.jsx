@@ -15,9 +15,9 @@ function AdminDashboard() {
   useEffect(() => {
     // Gọi cùng lúc 3 API để gom dữ liệu thống kê
     Promise.all([
-      axios.get('http://127.0.0.1:8000/api/lich-su-don-hang/'),
-      axios.get('http://127.0.0.1:8000/api/khach-hang/'),
-      axios.get('http://127.0.0.1:8000/api/san-pham/')
+      axios.get('https://computershop-api-gbkm.onrender.com/api/lich-su-don-hang/'),
+      axios.get('https://computershop-api-gbkm.onrender.com/api/khach-hang/'),
+      axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/')
     ])
     .then(([resOrders, resCustomers, resProducts]) => {
       const orders = resOrders.data

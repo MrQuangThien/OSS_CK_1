@@ -12,8 +12,8 @@ function AdminAddImport() {
   const [rows, setRows] = useState([{ san_pham_id: '', so_luong: 1, gia_nhap: 0 }])
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/nha-cung-cap/').then(res => setSuppliers(res.data))
-    axios.get('http://127.0.0.1:8000/api/san-pham/').then(res => setProducts(res.data))
+    axios.get('https://computershop-api-gbkm.onrender.com/api/nha-cung-cap/').then(res => setSuppliers(res.data))
+    axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/').then(res => setProducts(res.data))
   }, [])
 
   const addRow = () => setRows([...rows, { san_pham_id: '', so_luong: 1, gia_nhap: 0 }])
@@ -30,7 +30,7 @@ function AdminAddImport() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    axios.post('http://127.0.0.1:8000/api/phieu-nhap/tao/', {
+    axios.post('https://computershop-api-gbkm.onrender.com/api/phieu-nhap/tao/', {
       nha_cung_cap: nhaCungCap,
       chi_tiet: rows
     }).then(res => {

@@ -11,7 +11,7 @@ function AdminSuppliers() {
   const [editData, setEditData] = useState({ ten_nha_cung_cap: '', so_dien_thoai: '', dia_chi: '' })
 
   const fetchSuppliers = () => {
-    axios.get('http://127.0.0.1:8000/api/nha-cung-cap/')
+    axios.get('https://computershop-api-gbkm.onrender.com/api/nha-cung-cap/')
       .then(res => setSuppliers(res.data))
       .catch(err => console.error(err))
   }
@@ -22,7 +22,7 @@ function AdminSuppliers() {
     e.preventDefault()
     if (!formData.ten_nha_cung_cap.trim()) return
 
-    axios.post('http://127.0.0.1:8000/api/nha-cung-cap/them/', formData)
+    axios.post('https://computershop-api-gbkm.onrender.com/api/nha-cung-cap/them/', formData)
       .then(() => {
         toast.success("Đã thêm nhà cung cấp mới!")
         setFormData({ ten_nha_cung_cap: '', so_dien_thoai: '', dia_chi: '' })
@@ -33,7 +33,7 @@ function AdminSuppliers() {
 
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa nhà cung cấp này?")) {
-      axios.delete(`http://127.0.0.1:8000/api/nha-cung-cap/${id}/xoa/`)
+      axios.delete(`https://computershop-api-gbkm.onrender.com/api/nha-cung-cap/${id}/xoa/`)
         .then(() => {
           toast.info("Đã xóa nhà cung cấp")
           fetchSuppliers()
@@ -48,7 +48,7 @@ function AdminSuppliers() {
   }
 
   const saveEdit = (id) => {
-    axios.patch(`http://127.0.0.1:8000/api/nha-cung-cap/${id}/sua/`, editData)
+    axios.patch(`https://computershop-api-gbkm.onrender.com/api/nha-cung-cap/${id}/sua/`, editData)
       .then(() => {
         toast.success("Cập nhật thành công!")
         setEditingId(null)
