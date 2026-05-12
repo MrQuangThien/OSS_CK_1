@@ -161,14 +161,16 @@ function App() {
                 </div>
 
                 <nav className="d-flex gap-4 fw-bold" style={{fontSize: '0.95rem'}}>
-                  <Link to="/" className="text-decoration-none nav-item-custom">TRANG CHỦ</Link>
-                  <Link to="/tat-ca-san-pham" className="text-decoration-none nav-item-custom">TẤT CẢ SẢN PHẨM</Link>
+                  {/* Bắt location.pathname để gán class active-nav */}
+                  <Link to="/" className={`text-decoration-none nav-item-custom ${location.pathname === '/' ? 'active-nav' : ''}`}>TRANG CHỦ</Link>
                   
-                  {/* ĐÃ SỬA: Đính kèm is_new=true và is_hot=true */}
-                  <Link to="/tat-ca-san-pham?is_new=true" className="text-decoration-none nav-item-custom">HÀNG MỚI VỀ</Link>
-                  <Link to="/tat-ca-san-pham?is_hot=true" className="text-decoration-none nav-item-custom"><i className="fa-solid fa-fire text-danger me-1"></i>KHUYẾN MÃI HOT</Link>
+                  <Link to="/tat-ca-san-pham" className={`text-decoration-none nav-item-custom ${location.pathname === '/tat-ca-san-pham' && !location.search.includes('is_new') && !location.search.includes('is_hot') ? 'active-nav' : ''}`}>TẤT CẢ SẢN PHẨM</Link>
                   
-                  <Link to="/lien-he" className="text-decoration-none nav-item-custom">LIÊN HỆ</Link>
+                  <Link to="/tat-ca-san-pham?is_new=true" className={`text-decoration-none nav-item-custom ${location.search.includes('is_new=true') ? 'active-nav' : ''}`}>HÀNG MỚI VỀ</Link>
+                  
+                  <Link to="/tat-ca-san-pham?is_hot=true" className={`text-decoration-none nav-item-custom ${location.search.includes('is_hot=true') ? 'active-nav' : ''}`}><i className="fa-solid fa-fire text-danger me-1"></i>KHUYẾN MÃI HOT</Link>
+                  
+                  <Link to="/lien-he" className={`text-decoration-none nav-item-custom ${location.pathname === '/lien-he' ? 'active-nav' : ''}`}>LIÊN HỆ</Link>
                 </nav>
               </div>
             </div>
@@ -291,6 +293,13 @@ function App() {
         }
         .nav-item-custom:hover::after {
           width: 100%;
+        }
+        /* TRẠNG THÁI ACTIVE: Giữ màu cam và vạch kẻ chân khi đang ở trang đó */
+        .active-nav {
+          color: var(--primary-orange) !important;
+        }
+        .active-nav::after {
+          width: 100% !important;
         }
       `}</style>
     </div>
