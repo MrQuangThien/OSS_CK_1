@@ -80,7 +80,7 @@ function AdminEmployees() {
 
   return (
     <div>
-      <h2 className="fw-bold mb-4">Quản lý Nhân sự & Phân quyền</h2>
+      <h2 className="fw-bold mb-4">Quản lý Nhân sự</h2>
 
       <div className="row g-4">
         {/* CỘT TRÁI: FORM CẤP/SỬA TÀI KHOẢN */}

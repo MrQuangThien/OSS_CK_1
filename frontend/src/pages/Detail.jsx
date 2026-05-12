@@ -202,7 +202,7 @@ function Detail({ onThemVaoGio }) {
                 className={`btn py-3 fw-bold rounded-3 flex-fill shadow-sm ${hetHang ? 'btn-secondary opacity-50' : 'btn-orange'}`}
                 disabled={hetHang}
               >
-                <i className="fa-solid fa-bolt me-2 fs-5"></i> MUA NGAY TỨC THÌ
+                <i className="fa-solid fa-bolt me-2 fs-5"></i> MUA NGAY
               </button>
             </div>
 
