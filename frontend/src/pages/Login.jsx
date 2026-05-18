@@ -14,7 +14,7 @@ function Login({ setUsername }) {
     e.preventDefault()
     
     // Gửi dữ liệu xuống API đăng nhập của Django
-    axios.post('https://computershop-api-gbkm.onrender.com/api/login/', formData)
+    axios.post('http://127.0.0.1:8000/api/login/', formData)
       .then(response => {
         // 1. Lưu thông tin vào bộ nhớ trình duyệt
         localStorage.setItem('username', response.data.user.username)

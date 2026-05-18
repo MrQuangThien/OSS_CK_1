@@ -7,7 +7,7 @@ function ProductCard({ sp, onThemVaoGio }) {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
+    return `http://127.0.0.1:8000${cleanPath}`;
   };
 
   return (

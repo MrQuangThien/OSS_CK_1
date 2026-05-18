@@ -16,8 +16,8 @@ function AdminPOS() {
 
   useEffect(() => {
     Promise.all([
-      axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/'),
-      axios.get('https://computershop-api-gbkm.onrender.com/api/loai-hang/')
+      axios.get('http://127.0.0.1:8000/api/san-pham/'),
+      axios.get('http://127.0.0.1:8000/api/loai-hang/')
     ]).then(([resProducts, resCategories]) => {
       setProducts(resProducts.data)
       setCategories(resCategories.data)
@@ -75,7 +75,7 @@ function AdminPOS() {
       tong_tien: tongTien
     }
 
-    axios.post('https://computershop-api-gbkm.onrender.com/api/dat-hang/', payload)
+    axios.post('http://127.0.0.1:8000/api/dat-hang/', payload)
       .then(res => {
         toast.success("🎉 Chốt đơn thành công!")
         navigate('/admin/don-hang')
@@ -98,7 +98,7 @@ function AdminPOS() {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
+    return `http://127.0.0.1:8000${cleanPath}`;
   };
 
   return (

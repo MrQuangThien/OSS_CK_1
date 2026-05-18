@@ -7,7 +7,7 @@ function AdminImportDetail() {
   const [data, setData] = useState(null)
 
   useEffect(() => {
-    axios.get(`https://computershop-api-gbkm.onrender.com/api/phieu-nhap/${id}/`).then(res => setData(res.data))
+    axios.get(`http://127.0.0.1:8000/api/phieu-nhap/${id}/`).then(res => setData(res.data))
   }, [id])
 
   if (!data) return <div className="text-center mt-5"><div className="spinner-border"></div></div>

@@ -8,7 +8,7 @@ function AdminImports() {
   const [loading, setLoading] = useState(true)
 
   const fetchImports = () => {
-    axios.get('https://computershop-api-gbkm.onrender.com/api/phieu-nhap/')
+    axios.get('http://127.0.0.1:8000/api/phieu-nhap/')
       .then(res => {
         setImports(res.data)
         setLoading(false)

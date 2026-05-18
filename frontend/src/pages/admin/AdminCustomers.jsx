@@ -6,7 +6,7 @@ function AdminCustomers() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get('https://computershop-api-gbkm.onrender.com/api/khach-hang/')
+    axios.get('http://127.0.0.1:8000/api/khach-hang/')
       .then(res => {
         setCustomers(res.data)
         setLoading(false)

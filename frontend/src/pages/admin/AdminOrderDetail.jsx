@@ -11,7 +11,7 @@ function AdminOrderDetail() {
   const [status, setStatus] = useState("")
 
   const fetchOrderDetail = () => {
-    axios.get(`https://computershop-api-gbkm.onrender.com/api/chi-tiet-don-hang/${id}/`)
+    axios.get(`http://127.0.0.1:8000/api/chi-tiet-don-hang/${id}/`)
       .then(res => {
         setOrder(res.data)
         setStatus(res.data.trang_thai)
@@ -30,7 +30,7 @@ function AdminOrderDetail() {
 
   const handleUpdateStatus = (e) => {
     e.preventDefault()
-    axios.patch(`https://computershop-api-gbkm.onrender.com/api/don-hang/${id}/status/`, { trang_thai: status })
+    axios.patch(`http://127.0.0.1:8000/api/don-hang/${id}/status/`, { trang_thai: status })
       .then(() => {
         toast.success("Cập nhật trạng thái thành công!")
         fetchOrderDetail()
@@ -91,7 +91,7 @@ function AdminOrderDetail() {
                         if (!path) return "https://via.placeholder.com/50x50?text=No+Image";
                         if (path.startsWith('http')) return path;
                         let cleanPath = path.startsWith('/') ? path : '/' + path;
-                        return `https://computershop-api-gbkm.onrender.com${cleanPath.startsWith('/media/') ? cleanPath : '/media' + cleanPath}`;
+                        return `http://127.0.0.1:8000${cleanPath.startsWith('/media/') ? cleanPath : '/media' + cleanPath}`;
                       };
 
                       return (

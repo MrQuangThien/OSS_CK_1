@@ -23,10 +23,10 @@ function AdminEditProduct() {
 
   useEffect(() => {
     // Lấy danh mục
-    axios.get('https://computershop-api-gbkm.onrender.com/api/loai-hang/').then(res => setLoaiHangs(res.data))
+    axios.get('http://127.0.0.1:8000/api/loai-hang/').then(res => setLoaiHangs(res.data))
     
     // Lấy thông tin sản phẩm cần sửa
-    axios.get(`https://computershop-api-gbkm.onrender.com/api/san-pham/${id}/`)
+    axios.get(`http://127.0.0.1:8000/api/san-pham/${id}/`)
       .then(res => {
         const data = res.data;
         setFormData({
@@ -41,7 +41,7 @@ function AdminEditProduct() {
         })
         
         if (data.hinh_anh) {
-          let cleanPath = data.hinh_anh.startsWith('http') ? data.hinh_anh : `https://computershop-api-gbkm.onrender.com${data.hinh_anh.startsWith('/media/') ? data.hinh_anh : '/media' + data.hinh_anh}`
+          let cleanPath = data.hinh_anh.startsWith('http') ? data.hinh_anh : `http://127.0.0.1:8000${data.hinh_anh.startsWith('/media/') ? data.hinh_anh : '/media' + data.hinh_anh}`
           setPreview(cleanPath)
         }
         setLoading(false)
@@ -79,7 +79,7 @@ function AdminEditProduct() {
     
     if (hinhAnh) dataToSend.append('hinh_anh', hinhAnh)
 
-    axios.patch(`https://computershop-api-gbkm.onrender.com/api/san-pham/${id}/sua/`, dataToSend, {
+    axios.patch(`http://127.0.0.1:8000/api/san-pham/${id}/sua/`, dataToSend, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(() => {

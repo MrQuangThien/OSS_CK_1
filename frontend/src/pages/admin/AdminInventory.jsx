@@ -8,7 +8,7 @@ function AdminInventory() {
 
   useEffect(() => {
     // Tận dụng lại API danh sách sản phẩm đã có sẵn
-    axios.get('https://computershop-api-gbkm.onrender.com/api/san-pham/')
+    axios.get('http://127.0.0.1:8000/api/san-pham/')
       .then(res => {
         // MẸO UX: Sắp xếp tự động - Món nào tồn kho ít nhất sẽ nổi lên đầu bảng
         const sortedData = res.data.sort((a, b) => a.ton_kho - b.ton_kho)
@@ -29,7 +29,7 @@ function AdminInventory() {
     if (!cleanPath.startsWith('/media/')) {
       cleanPath = '/media' + cleanPath;
     }
-    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
+    return `http://127.0.0.1:8000${cleanPath}`;
   }
 
   return (

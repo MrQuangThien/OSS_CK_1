@@ -22,7 +22,7 @@ function Checkout({ gioHang, onXoaSachGio }) {
     const username = localStorage.getItem('username')
     if (username) {
       // Gọi API lấy thông tin Profile mà ta đã tạo trước đó
-      axios.post('https://computershop-api-gbkm.onrender.com/api/thong-tin-ca-nhan/', { username: username, action: 'get' })
+      axios.post('http://127.0.0.1:8000/api/thong-tin-ca-nhan/', { username: username, action: 'get' })
         .then(res => {
           // Cập nhật state khachHang bằng dữ liệu lấy được
           setKhachHang({
@@ -41,7 +41,7 @@ function Checkout({ gioHang, onXoaSachGio }) {
     if (path.startsWith('http')) return path;
     let cleanPath = path.startsWith('/') ? path : '/' + path;
     if (!cleanPath.startsWith('/media/')) cleanPath = '/media' + cleanPath;
-    return `https://computershop-api-gbkm.onrender.com${cleanPath}`;
+    return `http://127.0.0.1:8000${cleanPath}`;
   };
 
   if (checkoutItems.length === 0) {
@@ -58,7 +58,7 @@ function Checkout({ gioHang, onXoaSachGio }) {
       tong_tien: tongTien
     }
 
-    axios.post('https://computershop-api-gbkm.onrender.com/api/dat-hang/', duLieuDonHang)
+    axios.post('http://127.0.0.1:8000/api/dat-hang/', duLieuDonHang)
       .then(response => {
         toast.success('🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm.')
         
